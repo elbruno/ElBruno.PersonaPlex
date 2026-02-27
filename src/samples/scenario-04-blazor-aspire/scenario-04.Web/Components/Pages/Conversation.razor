@@ -1,0 +1,196 @@
+@page "/conversation"
+@using Microsoft.AspNetCore.SignalR.Client
+@using Scenario04.Shared.Models
+@implements IAsyncDisposable
+@inject IConfiguration Configuration
+
+<PageTitle>Conversation — PersonaPlex</PageTitle>
+
+<div class="conversation-container">
+    <!-- Sidebar: settings -->
+    <aside class="settings-panel">
+        <h3>⚙️ Settings</h3>
+
+        <label>Persona prompt:</label>
+        <textarea @bind="personaPrompt" rows="3" placeholder="e.g. You are a pirate captain..."></textarea>
+
+        <label>Ollama model:</label>
+        <input @bind="ollamaModel" placeholder="phi4-mini" />
+
+        <button class="btn-secondary" @onclick="ClearSession">🗑️ Clear history</button>
+
+        <div class="connection-status">
+            Status: <span class="@(isConnected ? "connected" : "disconnected")">
+                @(isConnected ? "🟢 Connected" : "🔴 Disconnected")
+            </span>
+        </div>
+    </aside>
+
+    <!-- Main chat area -->
+    <section class="chat-area">
+        <div class="messages" @ref="messagesContainer">
+            @foreach (var msg in messages)
+            {
+                <div class="message @msg.Role">
+                    <div class="message-role">@(msg.Role == "user" ? "You" : "AI")</div>
+                    <div class="message-content">@msg.Content</div>
+                    <div class="message-time">@msg.Timestamp.ToString("HH:mm:ss")</div>
+                </div>
+            }
+            @if (isStreaming)
+            {
+                <div class="message assistant streaming">
+                    <div class="message-role">AI</div>
+                    <div class="message-content">@currentStreamingText<span class="cursor">▊</span></div>
+                </div>
+            }
+        </div>
+
+        <!-- Input -->
+        <div class="input-area">
+            <input @bind="userInput"
+                   @bind:event="oninput"
+                   @onkeydown="HandleKeyDown"
+                   placeholder="Type a message..."
+                   disabled="@(!isConnected || isStreaming)" />
+            <button @onclick="SendMessage" disabled="@(!isConnected || isStreaming || string.IsNullOrWhiteSpace(userInput))">
+                Send
+            </button>
+        </div>
+    </section>
+</div>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<ChatMessageDto> messages = new();
+    private string userInput = string.Empty;
+    private string personaPrompt = string.Empty;
+    private string ollamaModel = "phi4-mini";
+    private string sessionId = Guid.NewGuid().ToString("N")[..8];
+    private string currentStreamingText = string.Empty;
+    private bool isStreaming;
+    private bool isConnected;
+    private ElementReference messagesContainer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Build SignalR connection to the API backend
+        var apiUrl = Configuration.GetConnectionString("api")
+            ?? Configuration["Services:api:https:0"]
+            ?? Configuration["Services:api:http:0"]
+            ?? "https://localhost:5001";
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl($"{apiUrl}/hubs/conversation")
+            .AddMessagePackProtocol()
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.Closed += _ =>
+        {
+            isConnected = false;
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        hubConnection.Reconnected += _ =>
+        {
+            isConnected = true;
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        try
+        {
+            await hubConnection.StartAsync();
+            isConnected = true;
+        }
+        catch (Exception ex)
+        {
+            messages.Add(new ChatMessageDto
+            {
+                Role = "system",
+                Content = $"Failed to connect to API: {ex.Message}. Make sure the API backend is running."
+            });
+        }
+    }
+
+    private async Task HandleKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey && !isStreaming && !string.IsNullOrWhiteSpace(userInput))
+        {
+            await SendMessage();
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (hubConnection is null || !isConnected || string.IsNullOrWhiteSpace(userInput))
+            return;
+
+        var messageText = userInput.Trim();
+        userInput = string.Empty;
+
+        // Add user message to chat
+        messages.Add(new ChatMessageDto { Role = "user", Content = messageText });
+        StateHasChanged();
+
+        // Stream the response
+        isStreaming = true;
+        currentStreamingText = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var persona = string.IsNullOrWhiteSpace(personaPrompt) ? null : personaPrompt;
+
+            await foreach (var token in hubConnection.StreamAsync<string>(
+                "SendMessage", sessionId, messageText, persona))
+            {
+                currentStreamingText += token;
+                StateHasChanged();
+            }
+
+            // Move streaming text to final messages
+            messages.Add(new ChatMessageDto
+            {
+                Role = "assistant",
+                Content = currentStreamingText
+            });
+        }
+        catch (Exception ex)
+        {
+            messages.Add(new ChatMessageDto
+            {
+                Role = "system",
+                Content = $"Error: {ex.Message}"
+            });
+        }
+        finally
+        {
+            isStreaming = false;
+            currentStreamingText = string.Empty;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ClearSession()
+    {
+        if (hubConnection is not null && isConnected)
+        {
+            await hubConnection.InvokeAsync("ClearSession", sessionId);
+        }
+
+        sessionId = Guid.NewGuid().ToString("N")[..8];
+        messages.Clear();
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

@@ -81,6 +81,7 @@ PersonaPlex includes pre-packaged voice embeddings:
 | [scenario-01-simple](src/samples/scenario-01-simple/) | Basic speech-to-speech generation |
 | [scenario-02-persona](src/samples/scenario-02-persona/) | Custom persona prompts |
 | [scenario-03-voice-select](src/samples/scenario-03-voice-select/) | Voice selection demo |
+| [scenario-04-blazor-aspire](src/samples/scenario-04-blazor-aspire/) | 🆕 Blazor + Aspire + Ollama real-time conversation |
 
 ### Run a Sample
 
