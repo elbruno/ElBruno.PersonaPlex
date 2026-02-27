@@ -1,0 +1,30 @@
+{
+  "universe_usage_history": [
+    {
+      "universe": "The Matrix",
+      "assignment_id": "personaplex-matrix-001",
+      "created_at": "2026-02-27T01:06:13.000Z",
+      "agent_count": 5,
+      "note": "Initial team — legacy named"
+    },
+    {
+      "universe": "The Matrix",
+      "assignment_id": "personaplex-matrix-002",
+      "created_at": "2026-02-27T12:00:00.000Z",
+      "agent_count": 7,
+      "note": "Added Niobe (Security) and Seraph (ONNX Specialist)"
+    }
+  ],
+  "assignment_cast_snapshots": {
+    "personaplex-matrix-001": {
+      "universe": "The Matrix",
+      "agents": ["Neo", "Morpheus", "Trinity", "Tank", "Dozer"],
+      "created_at": "2026-02-27T01:06:13.000Z"
+    },
+    "personaplex-matrix-002": {
+      "universe": "The Matrix",
+      "agents": ["Neo", "Morpheus", "Trinity", "Tank", "Dozer", "Niobe", "Seraph"],
+      "created_at": "2026-02-27T12:00:00.000Z"
+    }
+  }
+}
