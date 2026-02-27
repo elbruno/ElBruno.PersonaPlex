@@ -10,11 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // ──────────────────────────────────────────────────────────────
-// Ollama via Microsoft.Extensions.AI
+// Ollama via Microsoft Agent Framework
 // ──────────────────────────────────────────────────────────────
-// Aspire injects the connection string as "ConnectionStrings__ollama"
-// which resolves to something like "http://localhost:11434".
-// We use the OpenAI-compatible endpoint that Ollama exposes.
+// Uses Microsoft.Extensions.AI.Ollama (OllamaChatClient) as the
+// underlying IChatClient, following the pattern from:
+// https://learn.microsoft.com/agent-framework/agents/providers/ollama
+//
+// Aspire injects the Ollama endpoint via connection string.
+// The OllamaChatClient is registered as IChatClient for DI.
 // ──────────────────────────────────────────────────────────────
 var ollamaEndpoint = builder.Configuration.GetConnectionString("ollama")
     ?? builder.Configuration["Ollama:Endpoint"]
@@ -22,12 +25,9 @@ var ollamaEndpoint = builder.Configuration.GetConnectionString("ollama")
 
 var ollamaModel = builder.Configuration["Ollama:Model"] ?? "phi4-mini";
 
-builder.Services.AddChatClient(services =>
-    new OpenAI.OpenAIClient(
-        new System.ClientModel.ApiKeyCredential("ollama"),
-        new OpenAI.OpenAIClientOptions { Endpoint = new Uri($"{ollamaEndpoint}/v1") })
-    .GetChatClient(ollamaModel)
-    .AsIChatClient())
+// Register OllamaChatClient as IChatClient (Agent Framework pattern)
+builder.Services.AddChatClient(new OllamaChatClient(
+        new Uri(ollamaEndpoint), ollamaModel))
     .UseFunctionInvocation()
     .UseOpenTelemetry()
     .UseLogging();
@@ -66,6 +66,7 @@ app.MapGet("/", () => new
     Service = "PersonaPlex Conversation API",
     OllamaEndpoint = ollamaEndpoint,
     OllamaModel = ollamaModel,
+    AgentFramework = "Microsoft.Agents.AI + Microsoft.Extensions.AI.Ollama",
     Status = "Running"
 });
 

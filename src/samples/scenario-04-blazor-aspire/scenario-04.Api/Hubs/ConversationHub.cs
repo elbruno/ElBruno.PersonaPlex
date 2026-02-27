@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.AI;
 using Scenario04.Api.Services;
 using Scenario04.Shared.Models;
 
@@ -6,21 +7,30 @@ namespace Scenario04.Api.Hubs;
 
 /// <summary>
 /// SignalR hub for real-time conversation between the Blazor frontend and the
-/// Ollama-powered backend.  Supports both text chat and (future) audio streaming.
+/// Ollama-powered backend via Microsoft Agent Framework.
 ///
 /// Architecture:
 ///   Browser ──SignalR──► ConversationHub ──M.E.AI──► Ollama (phi4-mini)
+///
+/// Uses Microsoft.Extensions.AI.Ollama (OllamaChatClient) as the IChatClient,
+/// following the Agent Framework pattern from:
+/// https://learn.microsoft.com/agent-framework/agents/providers/ollama
+///
+/// For multi-turn streaming: ConversationService manages chat history per session.
+/// For one-shot agent queries: Uses IChatClient.AsAIAgent() directly.
 ///
 /// The hub uses MessagePack protocol for efficient binary transfer (audio chunks).
 /// </summary>
 public sealed class ConversationHub : Hub
 {
     private readonly ConversationService _conversation;
+    private readonly IChatClient _chatClient;
     private readonly ILogger<ConversationHub> _logger;
 
-    public ConversationHub(ConversationService conversation, ILogger<ConversationHub> logger)
+    public ConversationHub(ConversationService conversation, IChatClient chatClient, ILogger<ConversationHub> logger)
     {
         _conversation = conversation;
+        _chatClient = chatClient;
         _logger = logger;
     }
 
@@ -84,6 +94,33 @@ public sealed class ConversationHub : Hub
             Content = response,
             HasAudio = false
         };
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // One-shot Agent query (Microsoft Agent Framework pattern)
+    // ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Execute a one-shot agent query using the Microsoft Agent Framework pattern.
+    /// Creates an AIAgent from the OllamaChatClient with custom instructions.
+    ///
+    /// This follows the pattern from:
+    /// https://learn.microsoft.com/agent-framework/agents/providers/ollama
+    ///
+    /// <code>
+    /// var agent = chatClient.AsAIAgent(instructions: "You are a helpful assistant.");
+    /// var result = await agent.RunAsync("What is the largest city in France?");
+    /// </code>
+    /// </summary>
+    public async Task<string> AgentQuery(string question, string? instructions = null)
+    {
+        _logger.LogInformation("Hub: AgentQuery from {ConnectionId}", Context.ConnectionId);
+
+        var agent = _chatClient.AsAIAgent(
+            instructions: instructions ?? "You are a helpful, concise assistant. Keep responses to 1-3 sentences.");
+
+        var result = await agent.RunAsync(question);
+        return result.Text ?? string.Empty;
     }
 
     // ──────────────────────────────────────────────────────────

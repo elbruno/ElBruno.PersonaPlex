@@ -86,9 +86,58 @@ The first run downloads the Ollama container image AND the phi4-mini model. This
 |-----------|-----------|---------|-----|
 | Frontend | **Blazor Server** | .NET 10 | SignalR built-in, server-side rendering |
 | Communication | **SignalR + MessagePack** | 10.0.3 | Binary streaming, auto-reconnect |
-| AI Framework | **Microsoft.Extensions.AI** | 10.3.0 | Lightweight `IChatClient`, Ollama-compatible |
+| AI Framework | **Microsoft Agent Framework** | 1.0.0-rc2 | `AIAgent` + `OllamaChatClient` ([docs](https://learn.microsoft.com/agent-framework/agents/providers/ollama)) |
+| AI Abstractions | **Microsoft.Extensions.AI.Ollama** | 9.7.0-preview | `OllamaChatClient` as `IChatClient` |
 | LLM | **Ollama (phi4-mini)** | latest | 3.8B params, fast, runs locally |
 | Orchestration | **.NET Aspire** | 13.1.2 | Service discovery, telemetry, container management |
+
+## Microsoft Agent Framework Integration
+
+This scenario follows the [official Microsoft Agent Framework + Ollama pattern](https://learn.microsoft.com/agent-framework/agents/providers/ollama).
+
+### How it works
+
+**1. Register OllamaChatClient as IChatClient (Program.cs):**
+
+```csharp
+// Microsoft.Extensions.AI.Ollama provides OllamaChatClient
+builder.Services.AddChatClient(new OllamaChatClient(
+        new Uri(ollamaEndpoint), ollamaModel))
+    .UseFunctionInvocation()    // Enable function/tool calling
+    .UseOpenTelemetry()         // Traces visible in Aspire dashboard
+    .UseLogging();              // Log all AI interactions
+```
+
+**2. One-shot agent query (Agent Framework pattern):**
+
+```csharp
+using Microsoft.Agents.AI;
+
+// Create an AIAgent from the IChatClient — this is the Agent Framework pattern
+var agent = chatClient.AsAIAgent(
+    instructions: "You are a helpful assistant running locally via Ollama.");
+
+var result = await agent.RunAsync("What is the largest city in France?");
+Console.WriteLine(result.Text);
+```
+
+**3. Multi-turn streaming conversation (ConversationService):**
+
+```csharp
+// For multi-turn chat, we manage history per session and stream tokens
+await foreach (var token in chatClient.GetStreamingResponseAsync(chatHistory))
+{
+    yield return token.Text;  // Stream each token to the Blazor UI via SignalR
+}
+```
+
+### Packages used
+
+```xml
+<PackageReference Include="Microsoft.Extensions.AI" Version="10.3.0" />
+<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
+<PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-rc2" />
+```
 
 ## Changing the Ollama Model
 

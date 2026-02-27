@@ -3,8 +3,18 @@ using Microsoft.Extensions.AI;
 namespace Scenario04.Api.Services;
 
 /// <summary>
-/// Manages multi-turn conversation with Ollama via Microsoft.Extensions.AI.
-/// Each session maintains its own chat history for context continuity.
+/// Manages multi-turn conversation with Ollama via Microsoft Agent Framework.
+///
+/// Uses the pattern from:
+/// https://learn.microsoft.com/agent-framework/agents/providers/ollama
+///
+/// The OllamaChatClient is injected via DI and provides IChatClient.
+/// For simple one-shot queries, use AIAgent directly:
+///   var agent = chatClient.AsAIAgent(instructions: "...");
+///   var result = await agent.RunAsync("question");
+///
+/// For multi-turn conversations (this service), we manage chat history
+/// per session and use IChatClient.GetStreamingResponseAsync() for streaming.
 /// </summary>
 public sealed class ConversationService
 {
