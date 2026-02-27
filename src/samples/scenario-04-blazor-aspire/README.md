@@ -41,29 +41,34 @@ User sees response ◄── Blazor ◄── SignalR ◄─────┘
 ## Prerequisites
 
 1. **.NET 10 SDK** (or .NET 9 SDK)
-2. **Docker Desktop** — for running the Ollama container
-3. That's it! Aspire handles everything else automatically.
+2. **Ollama** installed and running locally — [ollama.com](https://ollama.com)
+3. **phi4-mini model** pulled: `ollama pull phi4-mini`
 
 ## How to Run
 
 ```bash
-# From the repo root:
+# 1. Start Ollama (if not already running):
+ollama serve
+
+# 2. Pull the model (first time only):
+ollama pull phi4-mini
+
+# 3. From the repo root:
 cd src/samples/scenario-04-blazor-aspire
 
-# Run the Aspire AppHost (starts everything):
+# 4. Run the Aspire AppHost (starts API + Web):
 dotnet run --project scenario-04.AppHost
 ```
 
 ### What happens when you run it:
 
-1. **Aspire starts the Ollama Docker container** — pulls `phi4-mini` model on first run (~2.5 GB download)
-2. **Aspire starts the API backend** — connects to Ollama, exposes SignalR hub
-3. **Aspire starts the Blazor frontend** — connects to API via SignalR
-4. **Aspire Dashboard opens** — shows all services, logs, traces at `http://localhost:15888`
+1. **Aspire starts the API backend** — connects to Ollama at `http://localhost:11434`, exposes SignalR hub
+2. **Aspire starts the Blazor frontend** — connects to API via SignalR
+3. **Aspire Dashboard opens** — shows all services, logs, traces
 
-### First-run note
+### Using Docker-managed Ollama (optional)
 
-The first run downloads the Ollama container image AND the phi4-mini model. This can take **5-10 minutes** depending on your internet connection. Subsequent runs start in seconds because everything is cached in Docker volumes.
+If you prefer Aspire to manage Ollama via Docker instead of running it locally, edit `scenario-04.AppHost/Program.cs` and uncomment the Docker-based Ollama section. This requires Docker Desktop to be running.
 
 ## Using the App
 
@@ -141,12 +146,21 @@ await foreach (var token in chatClient.GetStreamingResponseAsync(chatHistory))
 
 ## Changing the Ollama Model
 
-Edit `scenario-04.AppHost/Program.cs`:
+Pull a different model and update `scenario-04.Api/appsettings.json` (or set the `Ollama:Model` config):
 
-```csharp
-var ollama = builder.AddOllama("ollama")
-    .WithDataVolume("personaplex-ollama-data")
-    .AddModel("phi4-mini");       // ← Change this
+```bash
+ollama pull llama3.2
+```
+
+Then set the model name in the API config or environment variable:
+
+```json
+{
+  "Ollama": {
+    "Endpoint": "http://localhost:11434",
+    "Model": "llama3.2"
+  }
+}
 ```
 
 Popular options:

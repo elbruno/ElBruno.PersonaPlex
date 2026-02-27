@@ -176,9 +176,14 @@ dotnet run
 **How to run:**
 
 ```bash
-cd src/samples/scenario-04-blazor-aspire
+# 1. Start Ollama locally (if not already running):
+ollama serve
 
-# Start everything via Aspire (requires Docker Desktop running)
+# 2. Pull the model (first time only):
+ollama pull phi4-mini
+
+# 3. Run the Aspire AppHost:
+cd src/samples/scenario-04-blazor-aspire
 dotnet run --project scenario-04.AppHost
 ```
 
@@ -188,7 +193,7 @@ dotnet run --project scenario-04.AppHost
 - *"Explain quantum computing in simple terms"*
 - *"Write a haiku about coding"*
 
-**First-run note:** The first run downloads the Ollama container image and the `phi4-mini` model (~2.5 GB). This can take 5–10 minutes. Subsequent runs start in seconds.
+**Prerequisites:** Ollama must be installed and running locally with `phi4-mini` pulled. Docker is only needed if you uncomment the Docker-managed Ollama option in the AppHost.
 
 **What happens:**
 
@@ -268,5 +273,5 @@ dotnet run
 | **01 — Simple** | ✅ WAV file | ❌ | Basic encode → decode round-trip |
 | **02 — Persona** | ✅ WAV file | ❌ | Multiple persona prompts comparison |
 | **03 — Voice Select** | ✅ WAV file (`input.wav`) | ❌ | Voice preset comparison |
-| **04 — Blazor + Aspire** | ❌ Text chat | ✅ Docker | Full-stack real-time conversation |
+| **04 — Blazor + Aspire** | ❌ Text chat | ❌ (Ollama local) | Full-stack real-time conversation |
 | **05 — Model Download** | ❌ | ❌ | Model management and custom directories |
