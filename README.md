@@ -80,6 +80,8 @@ PersonaPlex includes pre-packaged voice embeddings:
 
 ## Samples
 
+See the [**Samples Guide**](docs/samples-guide.md) for detailed instructions on each scenario, including what test content to use and expected output.
+
 | Sample | Description |
 |--------|-------------|
 | [scenario-01-simple](src/samples/scenario-01-simple/) | Basic speech-to-speech generation |
@@ -92,7 +94,7 @@ PersonaPlex includes pre-packaged voice embeddings:
 
 ```bash
 cd src/samples/scenario-01-simple
-dotnet run
+dotnet run -- myrecording.wav
 ```
 
 ## Documentation
@@ -100,6 +102,7 @@ dotnet run
 | Document | Description |
 |----------|-------------|
 | [Getting Started](docs/getting-started.md) | Setup, auto-download, and first run |
+| [Samples Guide](docs/samples-guide.md) | Detailed guide for each sample scenario |
 | [Architecture](docs/architecture.md) | Pipeline design, model components, project structure |
 | [Exporting Models](docs/exporting-models.md) | Re-exporting ONNX models from PyTorch weights |
 | [GPU Acceleration](docs/gpu-acceleration.md) | CUDA, DirectML, and CPU configuration |
