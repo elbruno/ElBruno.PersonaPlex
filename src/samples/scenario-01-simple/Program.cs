@@ -36,6 +36,10 @@ var result = await pipeline.ProcessAsync(
     voicePreset: VoicePreset.NATF2,
     outputPath: outputPath);
 
+// Show output file info
+var outputInfo = new FileInfo(result.OutputAudioPath);
+var outputDurationSecs = outputInfo.Length / (24000.0 * 2); // 16-bit mono @ 24kHz (minus 44-byte header)
 Console.WriteLine($"✅ Output saved to: {result.OutputAudioPath}");
+Console.WriteLine($"   Output size: {outputInfo.Length / 1024.0:F1} KB (~{outputDurationSecs:F1}s)");
 Console.WriteLine($"   Inference time: {result.InferenceTimeMs:F0}ms");
 Console.WriteLine($"   Voice: {result.VoicePreset}");
