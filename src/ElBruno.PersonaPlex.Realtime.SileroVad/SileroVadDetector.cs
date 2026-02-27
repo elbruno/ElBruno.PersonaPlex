@@ -18,6 +18,7 @@ public class SileroVadDetector : IVoiceActivityDetector
     private InferenceSession? _session;
     private bool _disposed;
     private readonly SemaphoreSlim _initLock = new(1, 1);
+    private readonly SemaphoreSlim _inferenceLock = new(1, 1);
 
     // Silero VAD constants
     private const int DefaultSampleRate = 16000;
@@ -229,6 +230,7 @@ public class SileroVadDetector : IVoiceActivityDetector
         _session?.Dispose();
         _session = null;
         _initLock.Dispose();
+        _inferenceLock.Dispose();
 
         GC.SuppressFinalize(this);
     }

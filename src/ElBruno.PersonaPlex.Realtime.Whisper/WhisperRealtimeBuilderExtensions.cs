@@ -27,8 +27,11 @@ public static class WhisperRealtimeBuilderExtensions
     {
         builder.Options.SpeechToText.ModelId = modelId;
 
-        builder.Services.AddSingleton<ISpeechToTextClient>(
-            _ => new WhisperSpeechToTextClient(modelId, cacheDir, language));
+        var capturedModelId = modelId;
+        var capturedCacheDir = cacheDir;
+        var capturedLanguage = language;
+        builder.Services.AddSingleton<ISpeechToTextClient>(sp =>
+            new WhisperSpeechToTextClient(capturedModelId, capturedCacheDir, capturedLanguage));
 
         return builder;
     }

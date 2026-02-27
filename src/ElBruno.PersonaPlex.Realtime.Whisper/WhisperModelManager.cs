@@ -38,14 +38,17 @@ public static class WhisperModelManager
         string? cacheDir = null,
         CancellationToken cancellationToken = default)
     {
-        var targetDir = cacheDir ?? DefaultCacheDir;
+        var targetDir = Path.GetFullPath(cacheDir ?? DefaultCacheDir);
         Directory.CreateDirectory(targetDir);
 
         if (!ModelMap.TryGetValue(modelId, out var ggmlType))
             throw new ArgumentException($"Unknown Whisper model: '{modelId}'. Supported: {string.Join(", ", ModelMap.Keys)}", nameof(modelId));
 
         var fileName = $"ggml-{modelId.Replace("whisper-", "")}.bin";
-        var modelPath = Path.Combine(targetDir, fileName);
+        var modelPath = Path.GetFullPath(Path.Combine(targetDir, fileName));
+        // Ensure resolved path is still under targetDir (prevent path traversal)
+        if (!modelPath.StartsWith(targetDir, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Invalid model ID or cache directory.", nameof(modelId));
 
         if (File.Exists(modelPath))
             return modelPath;

@@ -11,6 +11,7 @@ namespace Scenario04.Api.Hubs;
 ///
 /// Architecture:
 ///   Browser ──SignalR──► ConversationHub ──M.E.AI──► Ollama (phi4-mini)
+///                                       ──Whisper──► Server-side STT
 ///
 /// Uses Microsoft.Extensions.AI.Ollama (OllamaChatClient) as the IChatClient,
 /// following the Agent Framework pattern from:
@@ -18,6 +19,7 @@ namespace Scenario04.Api.Hubs;
 ///
 /// For multi-turn streaming: ConversationService manages chat history per session.
 /// For one-shot agent queries: Uses IChatClient.AsAIAgent() directly.
+/// For server-side audio: Uses ISpeechToTextClient (Whisper.net) for transcription.
 ///
 /// The hub uses MessagePack protocol for efficient binary transfer (audio chunks).
 /// </summary>
@@ -25,13 +27,19 @@ public sealed class ConversationHub : Hub
 {
     private readonly ConversationService _conversation;
     private readonly IChatClient _chatClient;
+    private readonly ISpeechToTextClient? _sttClient;
     private readonly ILogger<ConversationHub> _logger;
 
-    public ConversationHub(ConversationService conversation, IChatClient chatClient, ILogger<ConversationHub> logger)
+    public ConversationHub(
+        ConversationService conversation,
+        IChatClient chatClient,
+        ILogger<ConversationHub> logger,
+        ISpeechToTextClient? sttClient = null)
     {
         _conversation = conversation;
         _chatClient = chatClient;
         _logger = logger;
+        _sttClient = sttClient;
     }
 
     // ──────────────────────────────────────────────────────────
@@ -71,19 +79,42 @@ public sealed class ConversationHub : Hub
 
     /// <summary>
     /// Process raw audio bytes through the conversation pipeline.
-    /// Reserved for future PersonaPlex ONNX integration (Mimi encoder/decoder).
-    /// Currently, voice input uses browser-side STT and routes through SendMessage.
+    /// Uses ISpeechToTextClient (Whisper.net) for server-side transcription,
+    /// then routes the transcribed text through the LLM for a response.
+    /// Falls back to browser-side STT guidance if Whisper is not available.
     /// </summary>
     public async IAsyncEnumerable<string> ProcessAudio(string sessionId, byte[] audioData, string? personaPrompt = null)
     {
         _logger.LogInformation("Hub: ProcessAudio from {ConnectionId}, {Bytes} bytes", Context.ConnectionId, audioData.Length);
 
-        // Future: Mimi Encoder → LM → Mimi Decoder pipeline.
-        // For now, treat as a text message placeholder.
-        await foreach (var token in _conversation.ChatStreamAsync(
-            sessionId,
-            "[Audio received — server-side audio processing will be available when PersonaPlex ONNX models are integrated. Use the mic button for browser-based voice input.]",
-            personaPrompt))
+        if (_sttClient is null)
+        {
+            // No STT client registered — guide user to browser-side STT
+            await foreach (var token in _conversation.ChatStreamAsync(
+                sessionId,
+                "[Audio received — server-side STT not configured. Use the mic button for browser-based voice input.]",
+                personaPrompt))
+            {
+                yield return token;
+            }
+            yield break;
+        }
+
+        // Server-side STT: transcribe audio using Whisper
+        using var audioStream = new MemoryStream(audioData);
+        var sttResponse = await _sttClient.GetTextAsync(audioStream);
+        var transcribedText = sttResponse.Text;
+
+        _logger.LogInformation("Hub: Transcribed audio to: \"{Text}\"", transcribedText);
+
+        if (string.IsNullOrWhiteSpace(transcribedText))
+        {
+            yield return "[No speech detected in audio]";
+            yield break;
+        }
+
+        // Route transcribed text through the LLM
+        await foreach (var token in _conversation.ChatStreamAsync(sessionId, transcribedText, personaPrompt))
         {
             yield return token;
         }

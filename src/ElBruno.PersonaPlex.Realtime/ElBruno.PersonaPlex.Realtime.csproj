@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/elbruno/ElBruno.PersonaPlex</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>nuget_01.png</PackageIcon>
+    <PackageIcon Condition="Exists('..\..\images\nuget_01.png')">nuget_01.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591;MEAI001</NoWarn>
   </PropertyGroup>

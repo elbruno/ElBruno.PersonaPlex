@@ -1,6 +1,8 @@
 using Microsoft.Extensions.AI;
 using Scenario04.Api.Hubs;
 using Scenario04.Api.Services;
+using ElBruno.PersonaPlex.Realtime;
+using ElBruno.PersonaPlex.Realtime.Whisper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,13 @@ builder.Services.AddChatClient(new OllamaChatClient(
     .UseFunctionInvocation()
     .UseOpenTelemetry()
     .UseLogging();
+
+// ──────────────────────────────────────────────────────────────
+// PersonaPlex Realtime: Whisper STT for server-side audio processing
+// Auto-downloads whisper-tiny.en model on first use (~75MB)
+// ──────────────────────────────────────────────────────────────
+builder.Services.AddSingleton<ISpeechToTextClient>(
+    _ => new WhisperSpeechToTextClient("whisper-tiny.en"));
 
 // ──────────────────────────────────────────────────────────────
 // Application services

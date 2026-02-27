@@ -5,11 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Scenario04.Api</RootNamespace>
+    <NoWarn>$(NoWarn);MEAI001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\scenario-04.ServiceDefaults\scenario-04.ServiceDefaults.csproj" />
     <ProjectReference Include="..\scenario-04.Shared\scenario-04.Shared.csproj" />
+    <ProjectReference Include="..\..\..\ElBruno.PersonaPlex.Realtime\ElBruno.PersonaPlex.Realtime.csproj" />
+    <ProjectReference Include="..\..\..\ElBruno.PersonaPlex.Realtime.Whisper\ElBruno.PersonaPlex.Realtime.Whisper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,10 +24,13 @@ public static class SileroModelManager
         string? cacheDir = null,
         CancellationToken cancellationToken = default)
     {
-        var targetDir = cacheDir ?? DefaultCacheDir;
+        var targetDir = Path.GetFullPath(cacheDir ?? DefaultCacheDir);
         Directory.CreateDirectory(targetDir);
 
-        var modelPath = Path.Combine(targetDir, "silero_vad.onnx");
+        var modelPath = Path.GetFullPath(Path.Combine(targetDir, "silero_vad.onnx"));
+        // Ensure resolved path is still under targetDir (prevent path traversal)
+        if (!modelPath.StartsWith(targetDir, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Invalid cache directory path.", nameof(cacheDir));
 
         if (File.Exists(modelPath))
             return modelPath;

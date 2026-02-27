@@ -78,6 +78,63 @@ PersonaPlex includes pre-packaged voice embeddings:
 | **Variety (Female)** | VARF0, VARF1, VARF2, VARF3, VARF4 |
 | **Variety (Male)** | VARM0, VARM1, VARM2, VARM3, VARM4 |
 
+---
+
+## Real-Time Conversation Pipeline
+
+The **ElBruno.PersonaPlex.Realtime** family of packages provides a complete real-time audio conversation pipeline following [Microsoft.Extensions.AI](https://learn.microsoft.com/en-us/dotnet/ai/microsoft-extensions-ai) patterns.
+
+### Install
+
+```bash
+dotnet add package ElBruno.PersonaPlex.Realtime          # Core abstractions + pipeline
+dotnet add package ElBruno.PersonaPlex.Realtime.Whisper   # Local STT (Whisper.net)
+dotnet add package ElBruno.PersonaPlex.Realtime.QwenTTS   # Local TTS (QwenTTS)
+dotnet add package ElBruno.PersonaPlex.Realtime.SileroVad # Local VAD (Silero)
+```
+
+### Quick Start
+
+```csharp
+// 1. Configure the pipeline (models auto-download on first use)
+builder.Services.AddPersonaPlexRealtime(opts =>
+{
+    opts.DefaultSystemPrompt = "You are a helpful voice assistant.";
+})
+.UseWhisperStt("whisper-tiny.en")   // 75MB, or "whisper-base.en" for better accuracy
+.UseQwenTts()                       // QwenTTS with multiple voice presets
+.UseSileroVad();                    // Voice activity detection
+
+// 2. Register your LLM (any IChatClient provider)
+builder.Services.AddChatClient(new OllamaChatClient(
+    new Uri("http://localhost:11434"), "phi4-mini"));
+
+// 3. Use the pipeline
+var conversation = app.Services.GetRequiredService<IRealtimeConversationClient>();
+
+// One-shot turn
+using var audio = File.OpenRead("question.wav");
+var turn = await conversation.ProcessTurnAsync(audio);
+Console.WriteLine($"User: {turn.UserText}");
+Console.WriteLine($"AI: {turn.ResponseText}");
+
+// Streaming full-duplex
+await foreach (var evt in conversation.ConverseAsync(microphoneStream))
+{
+    if (evt.Kind == ConversationEventKind.ResponseTextChunk)
+        Console.Write(evt.ResponseText);
+}
+```
+
+### Packages
+
+| Package | Description |
+|---------|-------------|
+| `ElBruno.PersonaPlex.Realtime` | Core: `ITextToSpeechClient`, `IVoiceActivityDetector`, `IRealtimeConversationClient`, pipeline orchestration, DI |
+| `ElBruno.PersonaPlex.Realtime.Whisper` | `ISpeechToTextClient` (M.E.AI) via Whisper.net — auto-downloads GGML models |
+| `ElBruno.PersonaPlex.Realtime.QwenTTS` | `ITextToSpeechClient` via ElBruno.QwenTTS — multiple voice presets |
+| `ElBruno.PersonaPlex.Realtime.SileroVad` | `IVoiceActivityDetector` via Silero VAD v5 ONNX — configurable thresholds |
+
 ## Samples
 
 See the [**Samples Guide**](docs/samples-guide.md) for detailed instructions on each scenario, including what test content to use and expected output.
@@ -87,8 +144,10 @@ See the [**Samples Guide**](docs/samples-guide.md) for detailed instructions on 
 | [scenario-01-simple](src/samples/scenario-01-simple/) | Basic speech-to-speech generation |
 | [scenario-02-persona](src/samples/scenario-02-persona/) | Custom persona prompts |
 | [scenario-03-voice-select](src/samples/scenario-03-voice-select/) | Voice selection demo |
-| [scenario-04-blazor-aspire](src/samples/scenario-04-blazor-aspire/) | 🆕 Blazor + Aspire + Ollama real-time conversation |
+| [scenario-04-blazor-aspire](src/samples/scenario-04-blazor-aspire/) | 🆕 Blazor + Aspire + Ollama real-time conversation with server-side Whisper STT |
 | [scenario-05-model-download](src/samples/scenario-05-model-download/) | Model download, progress reporting & custom directory |
+| [scenario-06-realtime-console](src/samples/scenario-06-realtime-console/) | 🆕 Real-time console: Audio → STT → LLM → TTS pipeline |
+| [scenario-07-realtime-api](src/samples/scenario-07-realtime-api/) | 🆕 ASP.NET Core API with SignalR streaming conversation |
 
 ### Run a Sample
 
@@ -104,6 +163,7 @@ dotnet run -- myrecording.wav
 | [Getting Started](docs/getting-started.md) | Setup, auto-download, and first run |
 | [Samples Guide](docs/samples-guide.md) | Detailed guide for each sample scenario |
 | [Architecture](docs/architecture.md) | Pipeline design, model components, project structure |
+| [Realtime Architecture](docs/realtime-architecture.md) | 🆕 Real-time conversation pipeline design, M.E.AI integration |
 | [Exporting Models](docs/exporting-models.md) | Re-exporting ONNX models from PyTorch weights |
 | [GPU Acceleration](docs/gpu-acceleration.md) | CUDA, DirectML, and CPU configuration |
 | [Publishing](docs/publishing.md) | NuGet publishing guide (Trusted Publishing / OIDC) |
