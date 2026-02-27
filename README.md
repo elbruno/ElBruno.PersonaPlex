@@ -112,6 +112,26 @@ dotnet run -- myrecording.wav
 
 The `python/` directory contains tools for **exporting ONNX models from PyTorch weights**. These are only needed if you want to re-export or customize models — they are not required for running the C# pipeline.
 
+### Exported ONNX Models
+
+| Model | Size | Description |
+|-------|------|-------------|
+| `mimi_encoder.onnx` | 178 MB | Audio → discrete tokens (Mimi audio codec encoder) |
+| `mimi_decoder.onnx` | 170 MB | Discrete tokens → audio (Mimi audio codec decoder) |
+| `lm_backbone.onnx` + `.data` | 13.3 GB (FP16) | Full 7B-param Transformer backbone (32 attention layers, 4096 dim) |
+
+The **Mimi encoder/decoder** models are hosted on HuggingFace and auto-downloaded by the C# library.
+
+The **LM backbone** (7B parameters) can be exported locally using:
+
+```bash
+cd python
+pip install -r requirements.txt
+python export_onnx.py --component lm --output onnx_exports/ --moshi-path /path/to/personaplex/moshi --quantize fp16
+```
+
+> **Note:** The `onnxruntime-genai` model builder does NOT support the PersonaPlex/Moshi architecture (it's not a standard HuggingFace model type). The manual export via `export_onnx.py` works and produces a validated, loadable ONNX model. FP16 inference on CPU takes ~0.4s per step with ~25s model load time.
+
 ---
 
 ## Building from Source

@@ -324,9 +324,13 @@ def export_lm(output_dir: str, cache_dir: str, quantize: str = "none", device: s
     )
 
     model = onnx.load(out_path)
-    onnx.checker.check_model(model)
+    onnx.checker.check_model(out_path)  # Use path for >2GB models
     size_mb = os.path.getsize(out_path) / (1024 * 1024)
-    log.info("✓ lm_backbone.onnx exported (%.1f MB)", size_mb)
+    # Include external data file size if present
+    data_file = out_path + ".data"
+    if os.path.exists(data_file):
+        size_mb += os.path.getsize(data_file) / (1024 * 1024)
+    log.info("✓ lm_backbone.onnx exported (%.1f MB total)", size_mb)
 
     # Export Depformer steps (one per codebook)
     dep_q = lm.dep_q  # 16

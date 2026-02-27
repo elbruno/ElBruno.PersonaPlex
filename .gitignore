@@ -79,6 +79,7 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+.cache/
 
 # Generated audio from samples
 output/
