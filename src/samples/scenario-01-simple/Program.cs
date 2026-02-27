@@ -14,13 +14,15 @@ using var pipeline = await PersonaPlexPipeline.CreateAsync("models");
 Console.WriteLine($"Pipeline ready. Models loaded from: {pipeline.ModelDirectory}");
 Console.WriteLine();
 
-// Process input audio
-var inputPath = "input.wav";
-var outputPath = "output.wav";
+// Use file name from args, or default to sample_voice_orig_eng.wav
+var inputPath = args.Length > 0 ? args[0] : "sample_voice_orig_eng.wav";
+var outputPath = args.Length > 1 ? args[1] : "output.wav";
 
 if (!File.Exists(inputPath))
 {
-    Console.WriteLine($"⚠️  Please provide an input audio file at: {inputPath}");
+    Console.WriteLine($"⚠️  Input file not found: {inputPath}");
+    Console.WriteLine();
+    Console.WriteLine("Usage: dotnet run [input.wav] [output.wav]");
     Console.WriteLine("   The file should be a 24kHz mono WAV recording.");
     return;
 }
