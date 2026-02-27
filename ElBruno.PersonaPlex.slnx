@@ -3,19 +3,10 @@
     <Project Path="src/ElBruno.PersonaPlex/ElBruno.PersonaPlex.csproj" />
     <Project Path="src/ElBruno.PersonaPlex.Tests/ElBruno.PersonaPlex.Tests.csproj" />
   </Folder>
-  <Folder Name="/src/realtime/">
-    <Project Path="src/ElBruno.PersonaPlex.Realtime/ElBruno.PersonaPlex.Realtime.csproj" />
-    <Project Path="src/ElBruno.PersonaPlex.Realtime.Whisper/ElBruno.PersonaPlex.Realtime.Whisper.csproj" />
-    <Project Path="src/ElBruno.PersonaPlex.Realtime.QwenTTS/ElBruno.PersonaPlex.Realtime.QwenTTS.csproj" />
-    <Project Path="src/ElBruno.PersonaPlex.Realtime.SileroVad/ElBruno.PersonaPlex.Realtime.SileroVad.csproj" />
-    <Project Path="src/ElBruno.PersonaPlex.Realtime.Tests/ElBruno.PersonaPlex.Realtime.Tests.csproj" />
-  </Folder>
   <Folder Name="/samples/">
     <Project Path="src/samples/scenario-01-simple/scenario-01-simple.csproj" />
     <Project Path="src/samples/scenario-02-persona/scenario-02-persona.csproj" />
     <Project Path="src/samples/scenario-03-voice-select/scenario-03-voice-select.csproj" />
     <Project Path="src/samples/scenario-05-model-download/scenario-05-model-download.csproj" />
-    <Project Path="src/samples/scenario-06-realtime-console/scenario-06-realtime-console.csproj" />
-    <Project Path="src/samples/scenario-07-realtime-api/scenario-07-realtime-api.csproj" />
   </Folder>
 </Solution>
