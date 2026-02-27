@@ -308,6 +308,25 @@ body {
     50% { opacity: 0.6; }
 }
 
+/* ─── Auto-Speak Toggle ─── */
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin-top: 0.25rem;
+}
+
+.toggle-label input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
 /* ─── Responsive ─── */
 
 @media (max-width: 768px) {

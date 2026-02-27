@@ -62,38 +62,31 @@ public sealed class ConversationHub : Hub
     }
 
     // ──────────────────────────────────────────────────────────
-    // Audio conversation (Mode C: Encoder → Ollama → Decoder)
-    // Placeholder — will be connected when PersonaPlex ONNX
-    // models are integrated into the pipeline.
+    // Audio conversation
+    // Speech-to-text is handled client-side via the Web Speech API.
+    // The transcribed text flows through SendMessage (above).
+    // This method is kept for future server-side audio processing
+    // when PersonaPlex ONNX models are integrated.
     // ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Process an audio chunk through the conversation pipeline.
-    /// Currently returns a text response; future: returns audio bytes.
+    /// Process raw audio bytes through the conversation pipeline.
+    /// Reserved for future PersonaPlex ONNX integration (Mimi encoder/decoder).
+    /// Currently, voice input uses browser-side STT and routes through SendMessage.
     /// </summary>
-    public async Task<ChatMessageDto> ProcessAudio(string sessionId, byte[] audioData, string? personaPrompt = null)
+    public async IAsyncEnumerable<string> ProcessAudio(string sessionId, byte[] audioData, string? personaPrompt = null)
     {
         _logger.LogInformation("Hub: ProcessAudio from {ConnectionId}, {Bytes} bytes", Context.ConnectionId, audioData.Length);
 
-        // TODO: When PersonaPlex ONNX models are ready:
-        // 1. Mimi Encoder: audioData → audio tokens
-        // 2. Transcribe tokens to text (or use separate Whisper model)
-        // 3. Send text to Ollama → get response
-        // 4. Mimi Decoder: response text → audio tokens → output audio
-        //
-        // For now, we acknowledge the audio and return a placeholder.
-
-        var response = await _conversation.ChatAsync(
+        // Future: Mimi Encoder → LM → Mimi Decoder pipeline.
+        // For now, treat as a text message placeholder.
+        await foreach (var token in _conversation.ChatStreamAsync(
             sessionId,
-            "[Audio message received — audio processing will be available when PersonaPlex ONNX models are integrated]",
-            personaPrompt);
-
-        return new ChatMessageDto
+            "[Audio received — server-side audio processing will be available when PersonaPlex ONNX models are integrated. Use the mic button for browser-based voice input.]",
+            personaPrompt))
         {
-            Role = "assistant",
-            Content = response,
-            HasAudio = false
-        };
+            yield return token;
+        }
     }
 
     // ──────────────────────────────────────────────────────────

@@ -9,4 +9,9 @@ public record ChatMessageDto
     public required string Content { get; init; }
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;
     public bool HasAudio { get; init; }
+
+    /// <summary>
+    /// When true, this message originated from voice input (browser STT).
+    /// </summary>
+    public bool IsVoiceInput { get; init; }
 }
