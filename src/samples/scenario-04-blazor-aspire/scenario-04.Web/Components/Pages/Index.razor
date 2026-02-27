@@ -13,9 +13,14 @@
         ▼
     API Backend (ASP.NET Core)
         │ Microsoft.Extensions.AI
-        ▼
-    Ollama (phi4-mini)
-        │ Local LLM reasoning
+        ├──────────────────────────────────┐
+        ▼                                  ▼
+    🗣️ NVIDIA PersonaPlex              🤖 Phi4-Mini (Ollama)
+        │ Audio Layer                      │ LLM Chat + Reasoning
+        │ Whisper STT + QwenTTS            │ Microsoft Agent Framework
+        ▼                                  ▼
+    Audio ◄──────────────────────────► Text
+        │
         ▼
     Response streamed back to browser
     </pre>
