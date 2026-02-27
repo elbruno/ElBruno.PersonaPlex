@@ -160,6 +160,7 @@ dotnet run -- myrecording.wav
 
 | Document | Description |
 |----------|-------------|
+| [Models Overview](docs/models-overview.md) | 🆕 How each model is used: VAD, STT, LLM, TTS, and PersonaPlex |
 | [Getting Started](docs/getting-started.md) | Setup, auto-download, and first run |
 | [Samples Guide](docs/samples-guide.md) | Detailed guide for each sample scenario |
 | [Architecture](docs/architecture.md) | Pipeline design, model components, project structure |
