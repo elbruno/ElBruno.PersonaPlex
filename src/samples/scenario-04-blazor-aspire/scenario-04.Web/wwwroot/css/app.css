@@ -308,6 +308,79 @@ body {
     50% { opacity: 0.6; }
 }
 
+/* ─── Speak Mode Button ─── */
+
+.btn-speak-mode {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.6rem 0.75rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-speak-mode:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.btn-speak-mode.active {
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+    animation: pulse 1.5s infinite;
+}
+
+/* ─── Speak Mode Bar ─── */
+
+.speak-mode-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+}
+
+.speak-mode-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.speak-mode-indicator.listening {
+    color: var(--accent-green);
+}
+
+.speak-mode-indicator.speech-detected {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.speak-mode-indicator.processing {
+    color: var(--text-secondary);
+    animation: pulse 1s infinite;
+}
+
+.speak-mode-indicator.speaking {
+    color: #d2a8ff;
+}
+
+.btn-stop-speak {
+    background: var(--accent-red);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-stop-speak:hover {
+    opacity: 0.85;
+}
+
 /* ─── Auto-Speak Toggle ─── */
 
 .toggle-label {

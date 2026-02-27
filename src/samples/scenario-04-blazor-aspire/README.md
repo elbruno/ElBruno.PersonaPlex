@@ -84,6 +84,23 @@ If you prefer Aspire to manage Ollama via Docker instead of running it locally, 
 - **Custom persona** — set a system prompt (e.g., "You are a pirate captain")
 - **Session management** — clear history and start fresh
 - **Connection status** — visual indicator for SignalR connection health
+- **🗣️ Speak Mode** — always-on microphone with automatic turn detection (GPT-Realtime-like hands-free conversation)
+- **🎤 Push-to-talk** — single utterance voice input
+- **🔊 Auto-speak** — AI responses spoken aloud via browser TTS
+
+### Voice Modes
+
+| Mode | How it works | Best for |
+|------|-------------|----------|
+| **Text** | Type and press Enter/Send | Normal chat |
+| **Push-to-talk (🎤)** | Click mic → speak → auto-sends on pause | Quick voice input |
+| **Speak Mode (🗣️)** | Click to enter always-on mode. Mic stays open, auto-sends on each pause, AI speaks response, mic resumes listening. Click 🔴 or ⏹️ Stop to exit. | Hands-free conversation |
+
+In Speak Mode, the state indicator shows:
+- 🟢 **Listening** — mic is open, waiting for you to speak
+- 🎤 **Hearing you...** — speech detected, transcribing
+- ⏳ **Processing** — sending to Ollama
+- 🔊 **Speaking** — AI is responding (interrupt by speaking again)
 
 ## Key Technology Choices
 

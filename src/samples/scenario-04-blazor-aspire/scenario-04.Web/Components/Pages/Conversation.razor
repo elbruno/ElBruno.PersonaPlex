@@ -53,20 +53,59 @@
             }
         </div>
 
+        <!-- Speak Mode indicator -->
+        @if (isSpeakMode)
+        {
+            <div class="speak-mode-bar">
+                <span class="speak-mode-indicator @speakModeState">
+                    @switch (speakModeState)
+                    {
+                        case "listening":
+                            <text>🟢 Listening — speak naturally, I'll respond when you pause</text>
+                            break;
+                        case "speech-detected":
+                            <text>🎤 Hearing you...</text>
+                            break;
+                        case "processing":
+                            <text>⏳ Processing...</text>
+                            break;
+                        case "speaking":
+                            <text>🔊 Speaking — interrupt me anytime</text>
+                            break;
+                        default:
+                            <text>🟡 Starting mic...</text>
+                            break;
+                    }
+                </span>
+                <button class="btn-stop-speak" @onclick="StopSpeakMode" title="Exit Speak Mode">
+                    ⏹️ Stop
+                </button>
+            </div>
+        }
+
         <!-- Input -->
         <div class="input-area">
             <input @bind="userInput"
                    @bind:event="oninput"
                    @onkeydown="HandleKeyDown"
-                   placeholder="@(isRecording ? "🎤 Listening..." : "Type a message or click 🎤")"
-                   disabled="@(!isConnected || isStreaming)" />
-            <button class="btn-mic @(isRecording ? "recording" : "")"
-                    @onclick="ToggleRecording"
+                   placeholder="@(isSpeakMode ? "🎤 Speak Mode active — just talk!" : "Type a message or use Speak Mode")"
+                   disabled="@(!isConnected || isStreaming || isSpeakMode)" />
+            @if (!isSpeakMode)
+            {
+                <button class="btn-mic @(isRecording ? "recording" : "")"
+                        @onclick="ToggleRecording"
+                        disabled="@(!isConnected || isStreaming)"
+                        title="@(isRecording ? "Stop listening" : "Push to talk")">
+                    @(isRecording ? "⏹️" : "🎤")
+                </button>
+            }
+            <button class="btn-speak-mode @(isSpeakMode ? "active" : "")"
+                    @onclick="ToggleSpeakMode"
                     disabled="@(!isConnected || isStreaming)"
-                    title="@(isRecording ? "Stop listening" : "Start voice input")">
-                @(isRecording ? "⏹️" : "🎤")
+                    title="@(isSpeakMode ? "Exit Speak Mode" : "Enter Speak Mode — hands-free conversation")">
+                @(isSpeakMode ? "🔴" : "🗣️")
             </button>
-            <button @onclick="SendMessage" disabled="@(!isConnected || isStreaming || string.IsNullOrWhiteSpace(userInput))">
+            <button @onclick="SendMessage" disabled="@(!isConnected || isStreaming || isSpeakMode || string.IsNullOrWhiteSpace(userInput))">
                 Send
             </button>
         </div>
@@ -84,8 +123,10 @@
     private bool isStreaming;
     private bool isConnected;
     private bool isRecording;
+    private bool isSpeakMode;
+    private string speakModeState = "listening"; // listening, speech-detected, processing, speaking
     private bool autoSpeak = true;
-    private bool voiceTriggered; // true when current send was from voice input
+    private bool voiceTriggered;
     private ElementReference messagesContainer;
     private DotNetObjectReference<Conversation>? dotNetRef;
 
@@ -157,6 +198,11 @@
             Role = "user",
             Content = isVoice ? $"🎤 {messageText}" : messageText
         });
+
+        if (isSpeakMode)
+        {
+            speakModeState = "processing";
+        }
         StateHasChanged();
 
         // Stream the response
@@ -182,9 +228,14 @@
                 Content = currentStreamingText
             });
 
-            // Speak the response aloud if this was a voice conversation
-            if (isVoice && autoSpeak)
+            // Speak the response aloud if voice-triggered or in Speak Mode
+            if ((isVoice || isSpeakMode) && autoSpeak)
             {
+                if (isSpeakMode)
+                {
+                    speakModeState = "speaking";
+                    StateHasChanged();
+                }
                 await JS.InvokeVoidAsync("voiceChat.speak", currentStreamingText);
             }
         }
@@ -200,6 +251,10 @@
         {
             isStreaming = false;
             currentStreamingText = string.Empty;
+            if (isSpeakMode)
+            {
+                speakModeState = "listening";
+            }
             StateHasChanged();
         }
     }
@@ -216,7 +271,7 @@
         StateHasChanged();
     }
 
-    // ── Voice conversation (Web Speech API) ──────────────────
+    // ── Push-to-talk (single utterance) ──────────────────────
 
     private async Task ToggleRecording()
     {
@@ -256,29 +311,101 @@
         StateHasChanged();
     }
 
+    // ── Speak Mode (always-on, hands-free) ───────────────────
+
+    private async Task ToggleSpeakMode()
+    {
+        if (isSpeakMode)
+        {
+            await StopSpeakMode();
+        }
+        else
+        {
+            await StartSpeakMode();
+        }
+    }
+
+    private async Task StartSpeakMode()
+    {
+        dotNetRef ??= DotNetObjectReference.Create(this);
+        try
+        {
+            // Stop push-to-talk if active
+            if (isRecording)
+            {
+                await StopRecording();
+            }
+
+            await JS.InvokeVoidAsync("voiceChat.startSpeakMode", dotNetRef);
+            isSpeakMode = true;
+            speakModeState = "listening";
+        }
+        catch (Exception ex)
+        {
+            messages.Add(new ChatMessageDto
+            {
+                Role = "system",
+                Content = $"Speak Mode error: {ex.Message}. Use Chrome or Edge."
+            });
+        }
+        StateHasChanged();
+    }
+
+    private async Task StopSpeakMode()
+    {
+        await JS.InvokeVoidAsync("voiceChat.stopSpeakMode");
+        isSpeakMode = false;
+        speakModeState = "listening";
+        userInput = string.Empty;
+        StateHasChanged();
+    }
+
+    // ── JS Interop callbacks ─────────────────────────────────
+
     /// <summary>
-    /// Called from JS as the user is speaking — shows live transcription in the input field.
+    /// Called from JS when listening state changes (mic on/off).
+    /// </summary>
+    [JSInvokable]
+    public void OnListeningStateChanged(bool listening)
+    {
+        if (isSpeakMode && listening && speakModeState != "processing" && speakModeState != "speaking")
+        {
+            speakModeState = "listening";
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Called from JS as the user is speaking — shows live transcription.
     /// </summary>
     [JSInvokable]
     public void OnInterimSpeechResult(string transcript)
     {
         userInput = transcript;
+        if (isSpeakMode)
+        {
+            speakModeState = "speech-detected";
+        }
         InvokeAsync(StateHasChanged);
     }
 
     /// <summary>
-    /// Called from JS when speech recognition produces a final result.
-    /// Automatically sends the transcribed text as a chat message.
+    /// Called from JS when speech recognition produces a final result (user paused).
+    /// In Speak Mode, automatically sends the message.
     /// </summary>
     [JSInvokable]
     public async Task OnFinalSpeechResult(string transcript)
     {
         userInput = transcript;
-        isRecording = false;
         voiceTriggered = true;
+
+        if (!isSpeakMode)
+        {
+            isRecording = false;
+        }
         StateHasChanged();
 
-        // Automatically send the transcribed message
+        // Auto-send the transcribed message
         await SendMessage();
     }
 
@@ -298,7 +425,7 @@
     }
 
     /// <summary>
-    /// Called from JS when speech recognition ends (no more audio input).
+    /// Called from JS when push-to-talk speech recognition ends.
     /// </summary>
     [JSInvokable]
     public void OnSpeechEnded()
@@ -315,6 +442,10 @@
 
     public async ValueTask DisposeAsync()
     {
+        if (isSpeakMode)
+        {
+            try { await JS.InvokeVoidAsync("voiceChat.stopSpeakMode"); } catch { }
+        }
         dotNetRef?.Dispose();
         if (hubConnection is not null)
         {
