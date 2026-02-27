@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ElBruno.PersonaPlex/ElBruno.PersonaPlex.csproj" />
+    <Project Path="src/ElBruno.PersonaPlex.Tests/ElBruno.PersonaPlex.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="src/samples/scenario-01-simple/scenario-01-simple.csproj" />
+    <Project Path="src/samples/scenario-02-persona/scenario-02-persona.csproj" />
+    <Project Path="src/samples/scenario-03-voice-select/scenario-03-voice-select.csproj" />
+  </Folder>
+</Solution>

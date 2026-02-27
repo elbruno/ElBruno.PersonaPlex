@@ -1,0 +1,11 @@
+# PersonaPlex ONNX Export Tools
+
+## Requirements
+
+torch>=2.0
+onnx>=1.15
+onnxruntime>=1.17
+transformers>=4.40
+huggingface_hub>=0.20
+numpy>=1.24
+soundfile>=0.12

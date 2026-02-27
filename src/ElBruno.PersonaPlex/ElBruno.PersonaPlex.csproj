@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ElBruno.PersonaPlex</RootNamespace>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>ElBruno.PersonaPlex</PackageId>
+    <Version>0.1.0-preview</Version>
+    <Authors>Bruno Capuano</Authors>
+    <Description>A .NET library for running NVIDIA PersonaPlex-7B-v1 full-duplex speech-to-speech locally using ONNX Runtime. Supports automatic model download from HuggingFace, voice presets, persona control, and native C# inference — no Python dependency.</Description>
+    <PackageTags>speech-to-speech;personaplex;nvidia;moshi;onnx;onnxruntime;ai;ml;full-duplex;conversational;voice;audio</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/elbruno/ElBruno.PersonaPlex</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/elbruno/ElBruno.PersonaPlex</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>nuget_01.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>ElBruno.PersonaPlex.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ElBruno.HuggingFace.Downloader" Version="0.5.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.*" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.24.2" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="README.md" Condition="Exists('..\..\README.md')" />
+    <None Include="..\..\images\nuget_01.png" Pack="true" PackagePath="\" Link="nuget_01.png" Condition="Exists('..\..\images\nuget_01.png')" />
+  </ItemGroup>
+
+</Project>
