@@ -15,8 +15,8 @@ namespace ElBruno.PersonaPlex.Pipeline;
 ///
 /// The full speech-to-speech pipeline (with 7B LM backbone) is not yet available
 /// in ONNX format due to the model's streaming architecture complexity.
-/// For reasoning/conversation, pair this with an LLM via Microsoft Agent Framework
-/// (see scenario-04-blazor-aspire).
+/// For reasoning/conversation, pair this with an LLM via the
+/// <see href="https://github.com/elbruno/ElBruno.Realtime">ElBruno.Realtime</see> library.
 /// </summary>
 public class PersonaPlexPipeline : IDisposable
 {

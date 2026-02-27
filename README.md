@@ -95,7 +95,7 @@ See the [**Samples Guide**](docs/samples-guide.md) for detailed instructions on 
 | [scenario-01-simple](src/samples/scenario-01-simple/) | Basic speech-to-speech generation |
 | [scenario-02-persona](src/samples/scenario-02-persona/) | Custom persona prompts |
 | [scenario-03-voice-select](src/samples/scenario-03-voice-select/) | Voice selection demo |
-| [scenario-05-model-download](src/samples/scenario-05-model-download/) | Model download, progress reporting & custom directory |
+| [scenario-04-model-download](src/samples/scenario-04-model-download/) | Model download, progress reporting & custom directory |
 
 ### Run a Sample
 

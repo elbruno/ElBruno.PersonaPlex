@@ -7,6 +7,6 @@
     <Project Path="src/samples/scenario-01-simple/scenario-01-simple.csproj" />
     <Project Path="src/samples/scenario-02-persona/scenario-02-persona.csproj" />
     <Project Path="src/samples/scenario-03-voice-select/scenario-03-voice-select.csproj" />
-    <Project Path="src/samples/scenario-05-model-download/scenario-05-model-download.csproj" />
+    <Project Path="src/samples/scenario-04-model-download/scenario-04-model-download.csproj" />
   </Folder>
 </Solution>

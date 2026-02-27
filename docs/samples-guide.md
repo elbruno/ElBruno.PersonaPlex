@@ -6,7 +6,6 @@ This guide explains each sample scenario, what it demonstrates, how to run it, a
 
 - **.NET 10 SDK** (or .NET 8 SDK for the core library)
 - A **WAV audio file** for scenarios 01–03 (24kHz mono recommended; other formats are auto-converted)
-- **Docker Desktop** — only for scenario-04 (Aspire + Ollama)
 
 ### Getting a Test Audio File
 
@@ -161,52 +160,7 @@ dotnet run
 
 ---
 
-## Scenario 04 — Blazor + Aspire + Ollama Conversation
-
-**Goal:** Full-stack real-time conversation app combining a Blazor Server UI, an Ollama-powered LLM backend, and .NET Aspire orchestration.
-
-> **Note:** This scenario has its own solution file (`scenario-04-blazor-aspire.slnx`) and is separate from the main solution.
-
-**What it demonstrates:**
-- .NET Aspire orchestration with Ollama container management
-- Microsoft Agent Framework integration (`OllamaChatClient` + `AsAIAgent`)
-- Real-time streaming responses via SignalR + MessagePack
-- Blazor Server chat UI with multi-turn conversation
-
-**How to run:**
-
-```bash
-# 1. Start Ollama locally (if not already running):
-ollama serve
-
-# 2. Pull the model (first time only):
-ollama pull phi4-mini
-
-# 3. Run the Aspire AppHost:
-cd src/samples/scenario-04-blazor-aspire
-dotnet run --project scenario-04.AppHost
-```
-
-**Test content:** No audio file needed — this scenario uses text-based chat. Type any message in the Blazor UI:
-
-- *"What is the capital of France?"*
-- *"Explain quantum computing in simple terms"*
-- *"Write a haiku about coding"*
-
-**Prerequisites:** Ollama must be installed and running locally with `phi4-mini` pulled. Docker is only needed if you uncomment the Docker-managed Ollama option in the AppHost.
-
-**What happens:**
-
-1. Aspire starts the Ollama Docker container with `phi4-mini`
-2. The API backend connects to Ollama and exposes a SignalR hub
-3. The Blazor frontend connects to the API via SignalR
-4. Open the Aspire Dashboard (printed in console) to see all services
-
-See the [full scenario-04 README](../src/samples/scenario-04-blazor-aspire/README.md) for architecture details, technology choices, and how to change the Ollama model.
-
----
-
-## Scenario 05 — Model Download & Custom Directory
+## Scenario 04 — Model Download & Custom Directory
 
 **Goal:** Demonstrate the model download process, progress reporting, default vs. custom model directories, and how to verify cached models.
 
@@ -221,7 +175,7 @@ See the [full scenario-04 README](../src/samples/scenario-04-blazor-aspire/READM
 **How to run:**
 
 ```bash
-cd src/samples/scenario-05-model-download
+cd src/samples/scenario-04-model-download
 
 # No input file needed — this scenario focuses on model management
 dotnet run
@@ -251,7 +205,7 @@ dotnet run
       Total:                           347.6 MB
 
 📂 Using a custom model directory...
-   Custom path: C:\...\scenario-05-model-download\my-custom-models
+   Custom path: C:\...\scenario-04-model-download\my-custom-models
 
 📥 Downloading models to custom location...
    ...
@@ -273,5 +227,4 @@ dotnet run
 | **01 — Simple** | ✅ WAV file | ❌ | Basic encode → decode round-trip |
 | **02 — Persona** | ✅ WAV file | ❌ | Multiple persona prompts comparison |
 | **03 — Voice Select** | ✅ WAV file (`input.wav`) | ❌ | Voice preset comparison |
-| **04 — Blazor + Aspire** | ❌ Text chat | ❌ (Ollama local) | Full-stack real-time conversation |
-| **05 — Model Download** | ❌ | ❌ | Model management and custom directories |
+| **04 — Model Download** | ❌ | ❌ | Model management and custom directories |
