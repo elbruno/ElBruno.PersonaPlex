@@ -6,7 +6,7 @@ Console.WriteLine();
 
 using var pipeline = await PersonaPlexPipeline.CreateAsync("models");
 
-var inputPath = "input.wav";
+var inputPath = args.Length > 0 ? args[0] : "sample_voice_orig_eng.wav";
 var personas = new Dictionary<string, string>
 {
     ["assistant"] = "You are a wise and friendly teacher. Answer questions or provide advice in a clear and engaging way.",
@@ -16,7 +16,10 @@ var personas = new Dictionary<string, string>
 
 if (!File.Exists(inputPath))
 {
-    Console.WriteLine($"⚠️  Please provide an input audio file at: {inputPath}");
+    Console.WriteLine($"⚠️  Input file not found: {inputPath}");
+    Console.WriteLine();
+    Console.WriteLine("Usage: dotnet run [input.wav]");
+    Console.WriteLine("   The file should be a 24kHz mono WAV recording.");
     return;
 }
 
