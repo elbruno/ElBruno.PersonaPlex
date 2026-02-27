@@ -7,10 +7,14 @@
 [![GitHub stars](https://img.shields.io/github/stars/elbruno/ElBruno.PersonaPlex?style=social)](https://github.com/elbruno/ElBruno.PersonaPlex)
 [![Twitter Follow](https://img.shields.io/twitter/follow/elbruno?style=social)](https://twitter.com/elbruno)
 
+**HuggingFace Models:**
+[![PersonaPlex ONNX](https://img.shields.io/badge/🤗%20HuggingFace-PersonaPlex%207B%20v1%20ONNX-yellow?style=flat-square)](https://huggingface.co/elbruno/personaplex-7b-v1-onnx)
+[![PersonaPlex Original](https://img.shields.io/badge/🤗%20HuggingFace-NVIDIA%20PersonaPlex%207B%20v1-blue?style=flat-square)](https://huggingface.co/nvidia/personaplex-7b-v1)
+
 Run **NVIDIA PersonaPlex-7B-v1** full-duplex speech-to-speech locally from C# using ONNX Runtime — no Python needed at inference time. Models are downloaded automatically on first run.
 
 Pre-exported ONNX models are hosted on HuggingFace:
-[**elbruno/personaplex-7b-v1-ONNX**](https://huggingface.co/elbruno/personaplex-7b-v1-ONNX)
+[**elbruno/personaplex-7b-v1-onnx**](https://huggingface.co/elbruno/personaplex-7b-v1-onnx)
 
 ## Features
 
@@ -142,7 +146,7 @@ Please open an issue first for major changes or new features to discuss the appr
 - [NVIDIA PersonaPlex GitHub](https://github.com/NVIDIA/personaplex)
 - [Original model (PyTorch)](https://huggingface.co/nvidia/personaplex-7b-v1)
 - [PersonaPlex Paper](https://arxiv.org/abs/2602.06053)
-- [Pre-exported ONNX models](https://huggingface.co/elbruno/personaplex-7b-v1-ONNX)
+- [Pre-exported ONNX models](https://huggingface.co/elbruno/personaplex-7b-v1-onnx)
 
 ---
 
