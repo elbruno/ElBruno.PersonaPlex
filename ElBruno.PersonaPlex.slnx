@@ -15,4 +15,7 @@
     <Project Path="src/samples/scenario-04-blazor-aspire/scenario-04.Web/scenario-04.Web.csproj" />
     <Project Path="src/samples/scenario-04-blazor-aspire/scenario-04.Shared/scenario-04.Shared.csproj" />
   </Folder>
+  <Folder Name="/src/samples/">
+    <Project Path="src/samples/scenario-05-model-download/scenario-05-model-download.csproj" />
+  </Folder>
 </Solution>
