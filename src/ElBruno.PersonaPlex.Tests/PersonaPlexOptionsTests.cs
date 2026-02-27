@@ -14,7 +14,7 @@ public class PersonaPlexOptionsTests
         Assert.NotNull(options.TextPrompt);
         Assert.Null(options.Seed);
         Assert.Equal(ExecutionProvider.CPU, options.ExecutionProvider);
-        Assert.Equal("elbruno/personaplex-7b-v1-ONNX", options.HuggingFaceRepoId);
+        Assert.Equal("elbruno/personaplex-7b-v1-onnx", options.HuggingFaceRepoId);
     }
 
     [Fact]

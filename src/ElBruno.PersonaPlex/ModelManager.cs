@@ -8,12 +8,13 @@ namespace ElBruno.PersonaPlex;
 public class ModelManager
 {
     /// <summary>
-    /// Known model files required for inference. Updated as ONNX export is finalized.
+    /// Known model files required for inference.
+    /// Currently: Mimi audio encoder/decoder only (the 7B LM backbone is not
+    /// yet available in ONNX format due to its streaming architecture complexity).
     /// </summary>
     internal static readonly string[] RequiredModelFiles =
     [
         "mimi_encoder.onnx",
-        "lm_model.onnx",
         "mimi_decoder.onnx"
     ];
 
@@ -36,7 +37,7 @@ public class ModelManager
     /// <returns>Path to the model directory.</returns>
     public static async Task<string> EnsureModelsAsync(
         string? modelDir = null,
-        string repoId = "elbruno/personaplex-7b-v1-ONNX",
+        string repoId = "elbruno/personaplex-7b-v1-onnx",
         IProgress<DownloadProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {

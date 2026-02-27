@@ -33,5 +33,5 @@ public class PersonaPlexOptions
     /// <summary>
     /// HuggingFace repository ID for ONNX model downloads.
     /// </summary>
-    public string HuggingFaceRepoId { get; set; } = "elbruno/personaplex-7b-v1-ONNX";
+    public string HuggingFaceRepoId { get; set; } = "elbruno/personaplex-7b-v1-onnx";
 }

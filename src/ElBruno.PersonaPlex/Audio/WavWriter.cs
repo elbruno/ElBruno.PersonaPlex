@@ -17,6 +17,10 @@ public static class WavWriter
         Write(stream, samples, sampleRate);
     }
 
+    /// <summary>Alias for <see cref="Write(string, float[], int)"/>.</summary>
+    public static void WriteWav(string path, float[] samples, int sampleRate = 24000)
+        => Write(path, samples, sampleRate);
+
     /// <summary>
     /// Writes a float array of audio samples to a WAV stream.
     /// </summary>
