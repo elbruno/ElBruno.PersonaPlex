@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ElBruno.PersonaPlex.Realtime.QwenTTS</RootNamespace>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>ElBruno.PersonaPlex.Realtime.QwenTTS</PackageId>
+    <Version>0.1.0-preview</Version>
+    <Authors>Bruno Capuano</Authors>
+    <Description>QwenTTS-based ITextToSpeechClient implementation for ElBruno.PersonaPlex.Realtime. Provides local text-to-speech using Qwen3-TTS via ONNX Runtime with automatic model download and multiple voice presets.</Description>
+    <PackageTags>qwen;tts;text-to-speech;onnx;ai;local;realtime;personaplex;voice</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/elbruno/ElBruno.PersonaPlex</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/elbruno/ElBruno.PersonaPlex</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>nuget_01.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ElBruno.PersonaPlex.Realtime\ElBruno.PersonaPlex.Realtime.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ElBruno.QwenTTS" Version="0.1.7-preview" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="README.md" Condition="Exists('..\..\README.md')" />
+    <None Include="..\..\images\nuget_01.png" Pack="true" PackagePath="\" Link="nuget_01.png" Condition="Exists('..\..\images\nuget_01.png')" />
+  </ItemGroup>
+
+</Project>
