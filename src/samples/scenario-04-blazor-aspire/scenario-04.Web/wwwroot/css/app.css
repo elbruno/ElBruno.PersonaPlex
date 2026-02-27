@@ -282,6 +282,32 @@ body {
     cursor: not-allowed;
 }
 
+.btn-mic {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.6rem 0.75rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-mic:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.btn-mic.recording {
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 /* ─── Responsive ─── */
 
 @media (max-width: 768px) {

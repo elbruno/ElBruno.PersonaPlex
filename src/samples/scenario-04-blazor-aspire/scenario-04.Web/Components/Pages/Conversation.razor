@@ -1,8 +1,10 @@
 @page "/conversation"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.SignalR.Client
 @using Scenario04.Shared.Models
 @implements IAsyncDisposable
 @inject IConfiguration Configuration
+@inject IJSRuntime JS
 
 <PageTitle>Conversation — PersonaPlex</PageTitle>
 
@@ -53,6 +55,12 @@
                    @onkeydown="HandleKeyDown"
                    placeholder="Type a message..."
                    disabled="@(!isConnected || isStreaming)" />
+            <button class="btn-mic @(isRecording ? "recording" : "")"
+                    @onclick="ToggleRecording"
+                    disabled="@(!isConnected || isStreaming)"
+                    title="@(isRecording ? "Stop recording" : "Hold to record audio")">
+                @(isRecording ? "⏹️" : "🎤")
+            </button>
             <button @onclick="SendMessage" disabled="@(!isConnected || isStreaming || string.IsNullOrWhiteSpace(userInput))">
                 Send
             </button>
@@ -70,7 +78,9 @@
     private string currentStreamingText = string.Empty;
     private bool isStreaming;
     private bool isConnected;
+    private bool isRecording;
     private ElementReference messagesContainer;
+    private DotNetObjectReference<Conversation>? dotNetRef;
 
     protected override async Task OnInitializedAsync()
     {
@@ -186,8 +196,87 @@
         StateHasChanged();
     }
 
+    // ── Audio recording ──────────────────────────────────────
+
+    private async Task ToggleRecording()
+    {
+        if (isRecording)
+        {
+            await StopRecording();
+        }
+        else
+        {
+            await StartRecording();
+        }
+    }
+
+    private async Task StartRecording()
+    {
+        dotNetRef ??= DotNetObjectReference.Create(this);
+        try
+        {
+            await JS.InvokeVoidAsync("audioRecorder.start", dotNetRef);
+            isRecording = true;
+        }
+        catch (Exception ex)
+        {
+            messages.Add(new ChatMessageDto
+            {
+                Role = "system",
+                Content = $"Microphone error: {ex.Message}. Please allow microphone access."
+            });
+        }
+        StateHasChanged();
+    }
+
+    private async Task StopRecording()
+    {
+        await JS.InvokeVoidAsync("audioRecorder.stop");
+        isRecording = false;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task OnAudioRecorded(byte[] audioData)
+    {
+        if (hubConnection is null || !isConnected || audioData.Length == 0)
+            return;
+
+        messages.Add(new ChatMessageDto { Role = "user", Content = "🎤 [Audio message]" });
+        isStreaming = true;
+        currentStreamingText = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var persona = string.IsNullOrWhiteSpace(personaPrompt) ? null : personaPrompt;
+            var result = await hubConnection.InvokeAsync<ChatMessageDto>("ProcessAudio", sessionId, audioData, persona);
+
+            messages.Add(new ChatMessageDto
+            {
+                Role = "assistant",
+                Content = result.Content
+            });
+        }
+        catch (Exception ex)
+        {
+            messages.Add(new ChatMessageDto
+            {
+                Role = "system",
+                Content = $"Audio processing error: {ex.Message}"
+            });
+        }
+        finally
+        {
+            isStreaming = false;
+            currentStreamingText = string.Empty;
+            StateHasChanged();
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
+        dotNetRef?.Dispose();
         if (hubConnection is not null)
         {
             await hubConnection.DisposeAsync();
