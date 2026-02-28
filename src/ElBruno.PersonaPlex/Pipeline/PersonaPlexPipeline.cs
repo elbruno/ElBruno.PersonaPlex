@@ -118,7 +118,8 @@ public class PersonaPlexPipeline : IDisposable
     /// <param name="codes">Audio tokens [batch=1, codebooks=8, frames].</param>
     /// <param name="outputPath">Output WAV file path.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    public Task DecodeAsync(long[,,] codes, string outputPath, CancellationToken cancellationToken = default)
+    /// <returns>The decoded audio samples.</returns>
+    public Task<float[]> DecodeAsync(long[,,] codes, string outputPath, CancellationToken cancellationToken = default)
     {
         if (_decoderSession is null)
             throw new InvalidOperationException("Mimi decoder model not loaded. Ensure mimi_decoder.onnx is present.");
@@ -129,34 +130,36 @@ public class PersonaPlexPipeline : IDisposable
         var codebooks = codes.GetLength(1);
         var framesPerChunk = _framesPerChunk > 0 ? _framesPerChunk : totalFrames;
 
+        float[] output;
+
         if (totalFrames <= framesPerChunk)
         {
-            var samples = DecodeSingleChunk(codes);
-            WavWriter.WriteWav(outputPath, samples, SampleRate);
-            return Task.CompletedTask;
+            output = DecodeSingleChunk(codes);
         }
-
-        // Chunked decoding for long sequences
-        var allSamples = new List<float[]>();
-        for (int offset = 0; offset < totalFrames; offset += framesPerChunk)
+        else
         {
-            var len = Math.Min(framesPerChunk, totalFrames - offset);
-            var chunk = ExtractCodeSlice(codes, codebooks, offset, len);
-            allSamples.Add(DecodeSingleChunk(chunk));
-        }
+            // Chunked decoding for long sequences
+            var allSamples = new List<float[]>();
+            for (int offset = 0; offset < totalFrames; offset += framesPerChunk)
+            {
+                var len = Math.Min(framesPerChunk, totalFrames - offset);
+                var chunk = ExtractCodeSlice(codes, codebooks, offset, len);
+                allSamples.Add(DecodeSingleChunk(chunk));
+            }
 
-        // Concatenate all decoded audio
-        var totalLen = allSamples.Sum(s => s.Length);
-        var output = new float[totalLen];
-        int pos = 0;
-        foreach (var s in allSamples)
-        {
-            s.CopyTo(output, pos);
-            pos += s.Length;
+            // Concatenate all decoded audio
+            var totalLen = allSamples.Sum(s => s.Length);
+            output = new float[totalLen];
+            int pos = 0;
+            foreach (var s in allSamples)
+            {
+                s.CopyTo(output, pos);
+                pos += s.Length;
+            }
         }
 
         WavWriter.WriteWav(outputPath, output, SampleRate);
-        return Task.CompletedTask;
+        return Task.FromResult(output);
     }
 
     /// <summary>
@@ -185,13 +188,15 @@ public class PersonaPlexPipeline : IDisposable
         // For now, the tokens pass through unchanged.
 
         // Step 3: Decode tokens → audio
-        await DecodeAsync(codes, outputPath, cancellationToken);
+        var outputSamples = await DecodeAsync(codes, outputPath, cancellationToken);
 
         var inferenceTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+        var durationMs = (outputSamples.Length / (double)SampleRate) * 1000.0;
 
         return new ConversationResult
         {
             OutputAudioPath = outputPath,
+            DurationMs = durationMs,
             InferenceTimeMs = inferenceTime,
             VoicePreset = resolvedVoice,
             TextPrompt = resolvedPrompt,
@@ -203,6 +208,9 @@ public class PersonaPlexPipeline : IDisposable
 
     private long[,,] EncodeSingleChunk(float[] audio)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(PersonaPlexPipeline));
+
         var inputTensor = new DenseTensor<float>(audio, [1, 1, audio.Length]);
         var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("audio", inputTensor) };
 
@@ -225,6 +233,9 @@ public class PersonaPlexPipeline : IDisposable
 
     private float[] DecodeSingleChunk(long[,,] codes)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(PersonaPlexPipeline));
+
         var d0 = codes.GetLength(0);
         var d1 = codes.GetLength(1);
         var d2 = codes.GetLength(2);
@@ -333,7 +344,7 @@ public class PersonaPlexPipeline : IDisposable
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path, paramName);
         var fullPath = Path.GetFullPath(path);
-        if (fullPath.Contains("..", StringComparison.Ordinal) || path.Contains('\0'))
+        if (fullPath.Contains("..", StringComparison.Ordinal) || fullPath.Contains('\0'))
             throw new ArgumentException("Path contains invalid characters or traversal sequences.", paramName);
     }
 
