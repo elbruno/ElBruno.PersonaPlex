@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-07-05
+
+### Fixed
+
+- Corrected the Twitter/X URL in the README About the Author section
+
 ### Added
 
 - Initial project scaffold
