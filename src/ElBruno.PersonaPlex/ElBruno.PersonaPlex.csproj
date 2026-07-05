@@ -5,7 +5,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>ElBruno.PersonaPlex</PackageId>
-    <Version>0.1.0-preview</Version>
+    <Version>0.6.1</Version>
     <Authors>Bruno Capuano</Authors>
     <Description>A .NET library for running NVIDIA PersonaPlex-7B-v1 full-duplex speech-to-speech locally using ONNX Runtime. Supports automatic model download from HuggingFace, voice presets, persona control, and native C# inference — no Python dependency.</Description>
     <PackageTags>speech-to-speech;personaplex;nvidia;moshi;onnx;onnxruntime;ai;ml;full-duplex;conversational;voice;audio</PackageTags>
