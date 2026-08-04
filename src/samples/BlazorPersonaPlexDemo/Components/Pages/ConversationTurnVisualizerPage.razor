@@ -1,0 +1,48 @@
+@page "/conversation-turn-visualizer"
+@inject FakePersonaSessionFactory SessionFactory
+
+<PageTitle>ConversationTurnVisualizer</PageTitle>
+
+<h1 class="mb-3">ConversationTurnVisualizer</h1>
+<p class="lead text-secondary">
+    Review transcript cards and durations from both an interactive session and a canned conversation.
+</p>
+
+<div class="row g-4">
+    <div class="col-xl-7">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-primary" @onclick="AddSummaryTurnAsync">Add summary turn</button>
+            <button class="btn btn-outline-primary" @onclick="AddWiringTurnAsync">Add wiring turn</button>
+            <button class="btn btn-outline-secondary" @onclick="ResetPreviewAsync">Reset</button>
+        </div>
+        <ConversationTurnVisualizer Turns="@liveSession.Turns"
+                                    ShowTranscript="true"
+                                    MaxTurns="6" />
+    </div>
+    <div class="col-xl-5">
+        <ConversationTurnVisualizer Turns="@seededSession.Turns"
+                                    ShowTranscript="true"
+                                    MaxTurns="6" />
+    </div>
+</div>
+
+<CodeSamplePanel Title="Code sample · ConversationTurnVisualizer" Code="@CodeSnippets.ConversationTurnVisualizer" />
+
+@code {
+    private FakePersonaSession liveSession = default!;
+    private FakePersonaSession seededSession = default!;
+
+    protected override void OnInitialized()
+    {
+        liveSession = SessionFactory.CreateLiveSession("Visualizer preview", VoicePreset.NATF1);
+        seededSession = SessionFactory.CreateSeededSession("Seeded visualizer", VoicePreset.VARF1);
+    }
+
+    private Task AddSummaryTurnAsync() =>
+        liveSession.SubmitUserTurnAsync("Summarize the design goal of this page.");
+
+    private Task AddWiringTurnAsync() =>
+        liveSession.SubmitUserTurnAsync("What changed in the sample wiring?");
+
+    private Task ResetPreviewAsync() => liveSession.ResetAsync();
+}

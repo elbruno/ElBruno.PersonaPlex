@@ -1,0 +1,67 @@
+<div class="turn-visualizer">
+    @if (VisibleTurns.Count == 0)
+    {
+        <div class="empty-state">No conversation turns yet.</div>
+    }
+    else
+    {
+        @foreach (var turn in VisibleTurns)
+        {
+            <article class="turn-card @turn.Status.ToString().ToLowerInvariant()">
+                <header class="turn-header">
+                    <div class="turn-title">Turn @turn.StartedAt.ToLocalTime().ToString("HH:mm:ss")</div>
+                    <div class="turn-status">@turn.Status</div>
+                </header>
+
+                <div class="lane">
+                    <div class="lane-title">User</div>
+                    @if (!string.IsNullOrWhiteSpace(GetAudioSource(turn.InputAudio)))
+                    {
+                        <audio controls src="@GetAudioSource(turn.InputAudio)"></audio>
+                    }
+                    @if (ShowTranscript && !string.IsNullOrWhiteSpace(turn.UserTranscript))
+                    {
+                        <p class="transcript">@turn.UserTranscript</p>
+                    }
+                </div>
+
+                <div class="lane">
+                    <div class="lane-title">AI</div>
+                    @if (!string.IsNullOrWhiteSpace(GetAudioSource(turn.OutputAudio)))
+                    {
+                        <audio controls src="@GetAudioSource(turn.OutputAudio)"></audio>
+                    }
+                    else if (turn.Status == ConversationTurnStatus.Processing)
+                    {
+                        <p class="hint">Generating response audio...</p>
+                    }
+
+                    @if (ShowTranscript && !string.IsNullOrWhiteSpace(turn.AssistantTranscript))
+                    {
+                        <p class="transcript">@turn.AssistantTranscript</p>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(turn.ErrorMessage))
+                    {
+                        <p class="error-text">@turn.ErrorMessage</p>
+                    }
+                </div>
+
+                <dl class="metrics">
+                    <div>
+                        <dt>Duration</dt>
+                        <dd>@FormatMetric(turn.OutputAudio?.DurationMs)</dd>
+                    </div>
+                    <div>
+                        <dt>Inference</dt>
+                        <dd>@FormatMetric(turn.InferenceTimeMs)</dd>
+                    </div>
+                    <div>
+                        <dt>Voice</dt>
+                        <dd>@turn.VoicePreset</dd>
+                    </div>
+                </dl>
+            </article>
+        }
+    }
+</div>

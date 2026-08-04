@@ -1,0 +1,68 @@
+@implements IAsyncDisposable
+
+<div class="speech-panel">
+    @if (ShowAvatar)
+    {
+        <div class="avatar-frame">
+        <div class="avatar @(IsRecording ? "user-active" : CurrentSession?.Status.State == PersonaSessionState.ProcessingTurn ? "ai-active" : "idle")">
+                <span class="avatar-label">PersonaPlex</span>
+            </div>
+            <div class="turn-caption">Current turn: @CurrentTurnLabel</div>
+        </div>
+    }
+
+    <div class="panel-body">
+        <AudioWaveform Source="AudioSource.Microphone"
+                       Height="64"
+                       BarColor="#0d6efd"
+                       BarWidth="3"
+                       IsActive="IsRecording" />
+
+        <label class="turn-note-label" for="@_noteId">Turn note</label>
+        <textarea id="@_noteId"
+                  class="turn-note"
+                  @bind="_turnNote"
+                  placeholder="Optional transcript hint or turn note."
+                  disabled="@IsBusy" />
+
+        <div class="actions">
+            @if (PushToTalk)
+            {
+                <button class="talk-button"
+                        disabled="@IsBusy"
+                        @onmousedown="StartRecordingAsync"
+                        @onmouseup="StopRecordingAsync"
+                        @onmouseleave="HandlePointerLeaveAsync">
+                    Hold to talk
+                </button>
+            }
+            else
+            {
+                <button class="talk-button"
+                        disabled="@IsBusy && !IsRecording"
+                        @onclick="ToggleRecordingAsync">
+                    @(IsRecording ? "Stop recording" : "Start recording")
+                </button>
+            }
+
+            <button class="secondary-button"
+                    disabled="@(!CanResetSession)"
+                    @onclick="ResetSessionAsync">
+                Clear turns
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(CurrentErrorMessage))
+        {
+            <div class="error-banner">@CurrentErrorMessage</div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_latestResponseAudioUrl))
+        {
+            <div class="response-preview">
+                <span class="response-label">Latest response</span>
+                <audio controls autoplay src="@_latestResponseAudioUrl"></audio>
+            </div>
+        }
+    </div>
+</div>

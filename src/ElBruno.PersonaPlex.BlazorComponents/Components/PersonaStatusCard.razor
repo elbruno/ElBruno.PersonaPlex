@@ -1,0 +1,53 @@
+@implements IDisposable
+
+<div class="status-card @StatusCssClass">
+    <div class="header-row">
+        <div>
+            <div class="title">PersonaPlex session</div>
+            <div class="status-line">@StatusText</div>
+        </div>
+        <span class="badge">@CurrentSession?.Status.State</span>
+    </div>
+
+    <dl class="details">
+        <div>
+            <dt>Model directory</dt>
+            <dd>@StateService.ModelDirectory</dd>
+        </div>
+        <div>
+            <dt>Working directory</dt>
+            <dd>@StateService.WorkingDirectory</dd>
+        </div>
+
+        @if (ShowSessionTimer)
+        {
+            <div>
+                <dt>Session timer</dt>
+                <dd>@FormatDuration(StateService.SessionDuration)</dd>
+            </div>
+        }
+    </dl>
+
+    @if (ShowVramUsage)
+    {
+        <div class="metric-block">
+            <div class="metric-label">VRAM usage</div>
+            @if (StateService.VramUsagePercent is double vramUsage)
+            {
+                <div class="meter">
+                    <div class="meter-fill" style="width:@($"{vramUsage:F0}%")"></div>
+                </div>
+                <div class="metric-help">@($"{vramUsage:F1}%")</div>
+            }
+            else
+            {
+                <div class="metric-help">Current runtime does not expose VRAM telemetry.</div>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(StateService.ErrorMessage))
+    {
+        <div class="error-callout">@StateService.ErrorMessage</div>
+    }
+</div>

@@ -1,0 +1,49 @@
+@foreach (var turn in VisibleTurns)
+{
+    <div class="card demo-card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <div class="fw-semibold">Turn #@turn.Index</div>
+                    <div class="small text-secondary">@turn.Timestamp.LocalDateTime.ToString("g") · @turn.PersonaName · @turn.VoicePreset</div>
+                </div>
+                <span class="metric-chip"><i class="bi bi-clock-history"></i>@turn.PersonaAudioDuration.TotalSeconds:F1 s</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="transcript-bubble">
+                        <div class="small fw-semibold text-secondary text-uppercase mb-2">User</div>
+                        @if (ShowTranscript)
+                        {
+                            <p class="mb-2">@turn.UserTranscript</p>
+                        }
+                        <div class="small text-secondary">Audio duration: @turn.UserAudioDuration.TotalSeconds:F1 s</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="transcript-bubble ai">
+                        <div class="small fw-semibold text-secondary text-uppercase mb-2">AI</div>
+                        <p class="mb-2">@turn.PersonaResponse</p>
+                        <div class="small text-secondary">Rendered voice: @turn.VoicePreset</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (VisibleTurns.Count == 0)
+{
+    <div class="alert alert-light border">No conversation turns yet.</div>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<ConversationTurn> Turns { get; set; } = [];
+    [Parameter] public bool ShowTranscript { get; set; } = true;
+    [Parameter] public int MaxTurns { get; set; } = 50;
+
+    private IReadOnlyList<ConversationTurn> VisibleTurns =>
+        Turns.Count <= MaxTurns
+            ? Turns
+            : Turns.Skip(Math.Max(0, Turns.Count - MaxTurns)).ToArray();
+}

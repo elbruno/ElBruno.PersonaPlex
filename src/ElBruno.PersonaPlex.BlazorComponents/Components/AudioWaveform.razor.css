@@ -1,0 +1,10 @@
+.audio-waveform {
+    width: 100%;
+    min-height: 3rem;
+    display: block;
+    border-radius: 0.9rem;
+    border: 1px solid #dbe4f3;
+    background:
+        linear-gradient(180deg, rgb(13 110 253 / 4%), transparent 50%),
+        #f8fbff;
+}

@@ -6,9 +6,12 @@ This guide covers how to publish new versions of **ElBruno.PersonaPlex** to NuGe
 
 | Package | Project | Description |
 |---------|---------|-------------|
-| `ElBruno.PersonaPlex` | `src/ElBruno.PersonaPlex/` | Full-duplex speech-to-speech using PersonaPlex (ONNX Runtime) |
+| `ElBruno.PersonaPlex` | `src/ElBruno.PersonaPlex/` | Half-duplex audio round-trip using PersonaPlex (ONNX Runtime) |
+| `ElBruno.PersonaPlex.BlazorComponents` | `src/ElBruno.PersonaPlex.BlazorComponents/` | Server-backed Blazor UI components for half-duplex, turn-based PersonaPlex sessions |
 
-> **Maintenance rule:** If a new packable library is added under `src/`, update `.github/workflows/publish.yml` in the same PR so the new project is packed/pushed, and add a matching NuGet Trusted Publishing policy.
+> **Auto-discovery:** the publish workflow discovers packable `.csproj` files under `src/` automatically (excluding samples and tests), then restores, builds, packs, and pushes them with one shared version.
+
+> **Policy requirement:** if you add a new packable library under `src/`, you usually do **not** need to update `.github/workflows/publish.yml` for discovery. You **do** need to update this guide and add a matching NuGet Trusted Publishing policy for the new package ID before publishing.
 
 ## Prerequisites (One-Time Setup)
 
@@ -63,11 +66,11 @@ This guide covers how to publish new versions of **ElBruno.PersonaPlex** to NuGe
 ```
 GitHub Release created (e.g. v1.0.0)
   → GitHub Actions triggers publish.yml
-    → Builds + tests all projects
-    → Packs ElBruno.PersonaPlex.nupkg
+    → Builds + tests the runtime + tests project
+    → Packs every packable library under src/ with the same version
     → Requests an OIDC token from GitHub
     → Exchanges the token with NuGet.org for a temporary API key
-    → Pushes package to NuGet.org
+    → Pushes all resulting packages to NuGet.org
     → Temp key expires automatically
 ```
 
@@ -75,7 +78,7 @@ GitHub Release created (e.g. v1.0.0)
 
 1. **Release tag** — if triggered by a GitHub Release (strips leading `v`)
 2. **Manual input** — if triggered via workflow dispatch with a version specified
-3. **csproj fallback** — reads `<Version>` from the csproj
+3. **Workflow default** — falls back to `1.0.0` when no version is supplied
 
 ## Troubleshooting
 

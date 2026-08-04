@@ -1,0 +1,15 @@
+<details class="code-sample shadow-sm mt-4" open="@StartOpen">
+    <summary class="code-sample-header px-4 py-3 d-flex align-items-center justify-content-between">
+        <span class="fw-semibold">@Title</span>
+        <span class="small text-secondary-emphasis"><i class="bi bi-chevron-expand me-1"></i>toggle</span>
+    </summary>
+    <div class="code-sample-body px-4 py-3">
+        <pre><code>@Code</code></pre>
+    </div>
+</details>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Code sample";
+    [Parameter, EditorRequired] public string Code { get; set; } = string.Empty;
+    [Parameter] public bool StartOpen { get; set; }
+}

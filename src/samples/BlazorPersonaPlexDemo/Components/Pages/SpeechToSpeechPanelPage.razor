@@ -1,0 +1,76 @@
+@page "/speech-to-speech-panel"
+@inject FakePersonaSessionFactory SessionFactory
+
+<PageTitle>SpeechToSpeechPanel</PageTitle>
+
+<h1 class="mb-3">SpeechToSpeechPanel</h1>
+<p class="lead text-secondary">
+    The live panel is interactive and server-backed, while the secondary panel shows a seeded fake session for design review.
+</p>
+
+<div class="row g-4">
+    <div class="col-xl-7">
+        <div class="card demo-card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h2 class="h5 mb-1">Live demo</h2>
+                        <div class="small text-secondary">Simulate turns without touching ONNX runtime.</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="ResetLiveAsync">Reset</button>
+                </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <SpeechToSpeechPanel Session="@liveSession"
+                                     ShowAvatar="true"
+                                     PushToTalk="false"
+                                     OnTurnCompleted="HandleTurnCompleted" />
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="card demo-card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h2 class="h5 mb-1">Seeded fake session</h2>
+                <div class="small text-secondary">Preloaded turns make contract review easy.</div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <SpeechToSpeechPanel Session="@seededSession"
+                                     ShowAvatar="true"
+                                     PushToTalk="true" />
+                @if (lastTurn is not null)
+                {
+                    <div class="alert alert-primary mt-3 mb-0">
+                        <strong>Last live callback:</strong> @lastTurn.PersonaResponse
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<CodeSamplePanel Title="Code sample · SpeechToSpeechPanel" Code="@CodeSnippets.SpeechToSpeechPanel" />
+
+@code {
+    private FakePersonaSession liveSession = default!;
+    private FakePersonaSession seededSession = default!;
+    private ConversationTurn? lastTurn;
+
+    protected override void OnInitialized()
+    {
+        liveSession = SessionFactory.CreateLiveSession("Speech panel preview", VoicePreset.NATF2);
+        seededSession = SessionFactory.CreateSeededSession("Seeded speech panel", VoicePreset.VARF0);
+    }
+
+    private Task HandleTurnCompleted(ConversationTurn turn)
+    {
+        lastTurn = turn;
+        return Task.CompletedTask;
+    }
+
+    private async Task ResetLiveAsync()
+    {
+        lastTurn = null;
+        await liveSession.ResetAsync();
+    }
+}
