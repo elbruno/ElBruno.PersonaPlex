@@ -1,0 +1,135 @@
+html, body {
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    background: linear-gradient(180deg, #f8fbff 0%, #f3f4f6 100%);
+    color: #111827;
+}
+
+a {
+    color: inherit;
+}
+
+code {
+    color: #7c3aed;
+}
+
+pre {
+    margin-bottom: 0;
+    white-space: pre-wrap;
+}
+
+.hero-card {
+    background: radial-gradient(circle at top right, rgba(13, 110, 253, 0.14), transparent 30%), #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 1.5rem;
+    box-shadow: 0 1rem 3rem rgba(15, 23, 42, 0.06);
+}
+
+.demo-nav-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.demo-nav-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.12) !important;
+}
+
+.icon-pill {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.demo-card {
+    border-radius: 1.25rem;
+}
+
+.metric-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.code-sample {
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 1rem;
+    background: #0f172a;
+    color: #e2e8f0;
+    overflow: hidden;
+}
+
+.code-sample summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.code-sample summary::-webkit-details-marker {
+    display: none;
+}
+
+.code-sample-header {
+    background: rgba(15, 23, 42, 0.94);
+}
+
+.code-sample-body {
+    background: #020617;
+}
+
+.waveform {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.35rem;
+    min-height: 4rem;
+}
+
+.waveform-bar {
+    flex: 1;
+    border-radius: 999px;
+    min-width: 0.3rem;
+    opacity: 0.88;
+    transition: height 0.2s ease;
+}
+
+.speaker-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.16), rgba(111, 66, 193, 0.2));
+    color: #0d6efd;
+}
+
+.transcript-bubble {
+    border-radius: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+}
+
+.transcript-bubble.ai {
+    background: #eff6ff;
+}
+
+.status-accent {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0d6efd, #20c997);
+}
+
+.blazor-error-boundary {
+    background-color: #7f1d1d;
+    color: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+}

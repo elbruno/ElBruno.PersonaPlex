@@ -1,0 +1,105 @@
+@implements IDisposable
+
+<div class="card demo-card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex gap-3 mb-3">
+            @if (ShowAvatar)
+            {
+                <div class="speaker-avatar">
+                    <i class="bi bi-person-bounding-box"></i>
+                </div>
+            }
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h2 class="h5 mb-1">@Session.PersonaName</h2>
+                        <div class="small text-secondary">@Session.PersonaPrompt</div>
+                    </div>
+                    <span class="metric-chip">
+                        <i class="bi @(PushToTalk ? "bi-hand-index-thumb" : "bi-toggle-on")"></i>
+                        @(PushToTalk ? "Push-to-talk preview" : "Toggle-to-talk preview")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-lg-6">
+                <AudioWaveform Source="AudioSource.Microphone"
+                               Samples="@Session.MicrophoneLevels"
+                               Height="84"
+                               BarColor="#0d6efd"
+                               BarWidth="6" />
+            </div>
+            <div class="col-lg-6">
+                <AudioWaveform Source="AudioSource.PersonaOutput"
+                               Samples="@Session.OutputLevels"
+                               Height="84"
+                               BarColor="#20c997"
+                               BarWidth="6" />
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
+            <input class="form-control"
+                   @bind="transcript"
+                   @bind:event="oninput"
+                   placeholder="Type a transcript to simulate microphone input" />
+            <button class="btn btn-outline-secondary" @onclick="StartAsync" disabled="@Session.IsBusy">Start</button>
+            <button class="btn btn-primary" @onclick="SubmitAsync" disabled="@Session.IsBusy">Simulate turn</button>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-secondary">@Session.StatusMessage</div>
+            <div class="small text-secondary">@Session.Turns.Count turn(s)</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string transcript = "Summarize why this sample stays model-free at startup.";
+    private IPersonaSession? _subscribedSession;
+
+    [Parameter, EditorRequired] public IPersonaSession Session { get; set; } = default!;
+    [Parameter] public bool ShowAvatar { get; set; } = true;
+    [Parameter] public bool PushToTalk { get; set; }
+    [Parameter] public EventCallback<ConversationTurn> OnTurnCompleted { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(_subscribedSession, Session))
+        {
+            if (_subscribedSession is not null)
+            {
+                _subscribedSession.Changed -= HandleSessionChanged;
+            }
+
+            _subscribedSession = Session;
+            _subscribedSession.Changed += HandleSessionChanged;
+        }
+    }
+
+    private Task StartAsync() => Session.StartAsync();
+
+    private async Task SubmitAsync()
+    {
+        await Session.SubmitUserTurnAsync(transcript);
+
+        var latestTurn = Session.Turns.LastOrDefault();
+        if (latestTurn is not null)
+        {
+            await OnTurnCompleted.InvokeAsync(latestTurn);
+        }
+    }
+
+    private void HandleSessionChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (_subscribedSession is not null)
+        {
+            _subscribedSession.Changed -= HandleSessionChanged;
+        }
+    }
+}

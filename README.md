@@ -11,16 +11,44 @@
 [![PersonaPlex ONNX](https://img.shields.io/badge/🤗%20HuggingFace-PersonaPlex%207B%20v1%20ONNX-yellow?style=flat-square)](https://huggingface.co/elbruno/personaplex-7b-v1-onnx)
 [![PersonaPlex Original](https://img.shields.io/badge/🤗%20HuggingFace-NVIDIA%20PersonaPlex%207B%20v1-blue?style=flat-square)](https://huggingface.co/nvidia/personaplex-7b-v1)
 
-Run **NVIDIA PersonaPlex-7B-v1** full-duplex speech-to-speech locally from C# using ONNX Runtime — no Python needed at inference time. Models are downloaded automatically on first run.
+Run **NVIDIA PersonaPlex-7B-v1** from C# using ONNX Runtime — no Python needed at inference time. Models are downloaded automatically on first run.
+
+> **Shipping note:** `ElBruno.PersonaPlex.BlazorComponents` is included in the **1.0.0** release. It is **server-backed** and **half-duplex / turn-based**: the browser handles capture and playback, while inference stays on the server. This repo does not provide browser-side full-duplex inference, streaming tokens, or local WebAssembly model execution.
 
 Pre-exported ONNX models are hosted on HuggingFace:
 [**elbruno/personaplex-7b-v1-onnx**](https://huggingface.co/elbruno/personaplex-7b-v1-onnx)
+
+## What's New
+
+| # | Update | Notes |
+|---|--------|-------|
+| 1 | Half-duplex runtime | Current pipeline round-trips WAV audio through Mimi encoder/decoder. |
+| 2 | Auto model download | Models are cached locally and reused across runs. |
+| 3 | Voice presets | 18 presets are available through `VoicePreset`. |
+| 4 | Sample documentation | Scenarios 01–04 are documented in `docs/samples-guide.md`. |
+| 5 | Blazor UI package | `docs/blazor-components.md` documents the shipped server-backed Blazor component surface. |
+
+## Package / Feature / Sample / Docs
+
+| Area | Reference | Notes |
+|------|-----------|-------|
+| Package | `ElBruno.PersonaPlex` | Core ONNX Runtime library for audio encode/decode. |
+| Package | `ElBruno.PersonaPlex.BlazorComponents` | Shipped in 1.0.0; server-backed, half-duplex, turn-based Blazor UI. |
+| Features | Auto-download, cache reuse, voice presets, CUDA/DirectML helpers | Built into the current runtime APIs. |
+| Sample | `src/samples/scenario-01-simple/` | Minimal audio round-trip. |
+| Sample | `src/samples/scenario-02-persona/` | Persona prompt comparison. |
+| Sample | `src/samples/scenario-03-voice-select/` | Voice preset comparison. |
+| Sample | `src/samples/scenario-04-model-download/` | Model download, progress, and custom directory. |
+| Docs | `docs/getting-started.md` | Setup and first run. |
+| Docs | `docs/samples-guide.md` | Sample scenarios and test content. |
+| Docs | `docs/blazor-components.md` | Shipped Blazor component package overview, hosting model, and limitations. |
+| Docs | `docs/publishing.md` | NuGet publishing and Trusted Publishing. |
 
 ## Features
 
 - **Local Speech-to-Speech Inference** — Run PersonaPlex entirely on your machine using ONNX Runtime
 - **Automatic Model Download** — Models download from HuggingFace on first run
-- **Full-Duplex Capable** — Based on NVIDIA's Moshi architecture for simultaneous listen + speak
+- **Half-Duplex Audio Round-Trip** — Encode and decode WAV audio with the current Mimi-based pipeline
 - **Persona Control** — Text-based role prompts for customizable AI personas
 - **Voice Selection** — Multiple pre-packaged voice embeddings (Natural + Variety voices)
 - **GPU Acceleration** — Optional CUDA or DirectML support via SessionOptions injection
@@ -96,6 +124,9 @@ See the [**Samples Guide**](docs/samples-guide.md) for detailed instructions on 
 | [scenario-02-persona](src/samples/scenario-02-persona/) | Custom persona prompts |
 | [scenario-03-voice-select](src/samples/scenario-03-voice-select/) | Voice selection demo |
 | [scenario-04-model-download](src/samples/scenario-04-model-download/) | Model download, progress reporting & custom directory |
+| [BlazorPersonaPlexDemo](src/samples/BlazorPersonaPlexDemo/) | Blazor Server, model-free component showcase for issue #6 |
+
+The current samples are backend-focused. If you build a web UI, use the runtime from the server side and treat the browser as the presentation layer.
 
 ### Run a Sample
 
@@ -110,6 +141,7 @@ dotnet run -- myrecording.wav
 |----------|-------------|
 | [Getting Started](docs/getting-started.md) | Setup, auto-download, and first run |
 | [Samples Guide](docs/samples-guide.md) | Detailed guide for each sample scenario |
+| [Blazor Components](docs/blazor-components.md) | Shipped server-backed component package and limitations |
 | [Architecture](docs/architecture.md) | Pipeline design, model components, project structure |
 | [Exporting Models](docs/exporting-models.md) | Re-exporting ONNX models from PyTorch weights |
 | [GPU Acceleration](docs/gpu-acceleration.md) | CUDA, DirectML, and CPU configuration |

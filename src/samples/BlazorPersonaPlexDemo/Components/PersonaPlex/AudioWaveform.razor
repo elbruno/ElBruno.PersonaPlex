@@ -1,0 +1,38 @@
+<div class="card demo-card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <div class="fw-semibold">@SourceLabel</div>
+                <div class="small text-secondary">Height @Height px · Bar width @BarWidth px</div>
+            </div>
+            <span class="metric-chip">
+                <i class="bi bi-activity"></i>
+                @($"{DisplayedSamples.Count} bars")
+            </span>
+        </div>
+        <div class="waveform" style="@($"min-height:{Height}px")">
+            @foreach (var sample in DisplayedSamples)
+            {
+                <div class="waveform-bar"
+                     style="@($"height:{Math.Max(sample, 10):F0}%;background:{BarColor};max-width:{BarWidth}px")"></div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public AudioSource Source { get; set; }
+    [Parameter] public int Height { get; set; } = 60;
+    [Parameter] public string BarColor { get; set; } = "#0d6efd";
+    [Parameter] public int BarWidth { get; set; } = 4;
+    [Parameter] public IReadOnlyList<double>? Samples { get; set; }
+
+    private IReadOnlyList<double> DisplayedSamples =>
+        Samples?.Count > 0
+            ? Samples
+            : Source == AudioSource.Microphone
+                ? [28, 34, 52, 74, 68, 40, 32, 56, 71, 66, 41, 24]
+                : [22, 41, 63, 58, 48, 32, 27, 55, 64, 46, 31, 20];
+
+    private string SourceLabel => Source == AudioSource.Microphone ? "Microphone input" : "Persona output";
+}

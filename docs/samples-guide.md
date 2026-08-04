@@ -2,6 +2,8 @@
 
 This guide explains each sample scenario, what it demonstrates, how to run it, and what test content to use.
 
+> **Runtime note:** these samples exercise the current **half-duplex** PersonaPlex pipeline. They are the right backend building blocks for a future **server-backed** Blazor UI, but they do not provide browser-side full-duplex streaming.
+
 ## Prerequisites
 
 - **.NET 10 SDK** (or .NET 8 SDK for the core library)
@@ -220,6 +222,29 @@ dotnet run
 
 ---
 
+## BlazorPersonaPlexDemo — Server-Backed, Model-Free UI Showcase
+
+**Goal:** Demonstrate the proposed issue #6 Blazor component contracts without requiring ONNX downloads, GPU access, or model initialization during app startup.
+
+**What it demonstrates:**
+- A Blazor Server app under `src/samples/BlazorPersonaPlexDemo`
+- One page each for `SpeechToSpeechPanel`, `PersonaStatusCard`, `ConversationTurnVisualizer`, and `AudioWaveform`
+- Interactive server-backed fake sessions plus seeded/canned sessions for review
+- Bootstrap 5.3.x and Bootstrap Icons served from local self-hosted assets in `wwwroot/lib/` and referenced by `Components/App.razor`
+- Collapsible code panels fed from `CodeSnippets.cs`
+
+**How to run:**
+
+```bash
+dotnet run --project src/samples/BlazorPersonaPlexDemo/BlazorPersonaPlexDemo.csproj
+```
+
+**Test content:** No audio file or models required. Use the in-app buttons to start fake sessions, simulate turns, and refresh waveforms.
+
+**Expected behavior:** The app starts quickly, does not attempt to download models, and each component page renders both an interactive preview and a canned/sample surface.
+
+---
+
 ## Summary
 
 | Scenario | Audio Needed? | Docker Needed? | Goal |
@@ -228,3 +253,5 @@ dotnet run
 | **02 — Persona** | ✅ WAV file | ❌ | Multiple persona prompts comparison |
 | **03 — Voice Select** | ✅ WAV file (`input.wav`) | ❌ | Voice preset comparison |
 | **04 — Model Download** | ❌ | ❌ | Model management and custom directories |
+
+If you are wiring PersonaPlex into a web app, keep the audio/model work on the server and use the browser only for capture, playback, and turn-state rendering. See [Blazor Components](blazor-components.md) for the intended UI contract.

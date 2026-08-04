@@ -1,5 +1,5 @@
 name: Squad CI
-# Project type was not detected — configure build/test commands below
+# dotnet project — configure build/test commands below
 
 on:
   pull_request:
@@ -17,12 +17,111 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build and test
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Discover library and test projects
+        shell: bash
         run: |
-          # TODO: Project type was not detected — add your build/test commands here
-          # Go:            go test ./...
-          # Python:        pip install -r requirements.txt && pytest
-          # .NET:          dotnet test
-          # Java (Maven):  mvn test
-          # Java (Gradle): ./gradlew test
-          echo "No build commands configured — update squad-ci.yml"
+          set -euo pipefail
+
+          mapfile -t projects < <(find src -mindepth 2 -maxdepth 2 -name '*.csproj' ! -path '*/samples/*' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No library or test projects found."
+            exit 1
+          fi
+
+          packable_projects=()
+          test_projects=()
+          for project in "${projects[@]}"; do
+            if grep -Eq '<IsTestProject>\s*true\s*</IsTestProject>' "$project"; then
+              test_projects+=("$project")
+            else
+              packable_projects+=("$project")
+            fi
+          done
+
+          if [ "${#packable_projects[@]}" -eq 0 ]; then
+            echo "No library or package projects found."
+            exit 1
+          fi
+
+          if [ "${#test_projects[@]}" -eq 0 ]; then
+            echo "No test projects found."
+            exit 1
+          fi
+
+          printf '%s\n' "${packable_projects[@]}" > packable-projects.txt
+          printf '%s\n' "${test_projects[@]}" > test-projects.txt
+
+          echo "Packable projects:"
+          printf ' - %s\n' "${packable_projects[@]}"
+          echo "Test projects:"
+          printf ' - %s\n' "${test_projects[@]}"
+
+      - name: Restore library and package projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet restore "$project"
+          done < packable-projects.txt
+
+      - name: Build library and package projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet build "$project" -c Release --no-restore
+          done < packable-projects.txt
+
+      - name: Restore tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet restore "$project"
+          done < test-projects.txt
+
+      - name: Build tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet build "$project" -c Release --no-restore
+          done < test-projects.txt
+
+      - name: Test
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet test "$project" -c Release --no-build --verbosity normal
+          done < test-projects.txt
+
+      - name: Restore and build samples
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t sample_projects < <(find src/samples -mindepth 2 -maxdepth 2 -name '*.csproj' | sort)
+          if [ "${#sample_projects[@]}" -eq 0 ]; then
+            echo "No sample projects found."
+            exit 1
+          fi
+
+          for project in "${sample_projects[@]}"; do
+            echo "Restoring $project"
+            dotnet restore "$project"
+            echo "Building $project"
+            dotnet build "$project" -c Release --no-restore
+          done

@@ -1,0 +1,66 @@
+@page "/audio-waveform"
+@inject FakePersonaSessionFactory SessionFactory
+
+<PageTitle>AudioWaveform</PageTitle>
+
+<h1 class="mb-3">AudioWaveform</h1>
+<p class="lead text-secondary">
+    The waveform component renders server-generated sample bars for both microphone capture and persona playback.
+</p>
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-primary" @onclick="RefreshWaveformsAsync">Refresh waveforms</button>
+    <button class="btn btn-outline-primary" @onclick="SimulateResponseAsync">Simulate response</button>
+    <button class="btn btn-outline-secondary" @onclick="ResetWaveformPreviewAsync">Reset</button>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-6">
+        <AudioWaveform Source="AudioSource.Microphone"
+                       Samples="@liveSession.MicrophoneLevels"
+                       Height="96"
+                       BarColor="#0d6efd"
+                       BarWidth="8" />
+    </div>
+    <div class="col-xl-6">
+        <AudioWaveform Source="AudioSource.PersonaOutput"
+                       Samples="@liveSession.OutputLevels"
+                       Height="96"
+                       BarColor="#20c997"
+                       BarWidth="8" />
+    </div>
+    <div class="col-xl-6">
+        <AudioWaveform Source="AudioSource.Microphone"
+                       Samples="@seededSession.MicrophoneLevels"
+                       Height="72"
+                       BarColor="#6f42c1"
+                       BarWidth="6" />
+    </div>
+    <div class="col-xl-6">
+        <AudioWaveform Source="AudioSource.PersonaOutput"
+                       Samples="@seededSession.OutputLevels"
+                       Height="72"
+                       BarColor="#fd7e14"
+                       BarWidth="6" />
+    </div>
+</div>
+
+<CodeSamplePanel Title="Code sample · AudioWaveform" Code="@CodeSnippets.AudioWaveform" />
+
+@code {
+    private FakePersonaSession liveSession = default!;
+    private FakePersonaSession seededSession = default!;
+
+    protected override void OnInitialized()
+    {
+        liveSession = SessionFactory.CreateLiveSession("Waveform preview", VoicePreset.NATM0);
+        seededSession = SessionFactory.CreateSeededSession("Seeded waveform preview", VoicePreset.VARM2);
+    }
+
+    private Task RefreshWaveformsAsync() => liveSession.RefreshWaveformsAsync();
+
+    private Task SimulateResponseAsync() =>
+        liveSession.SubmitUserTurnAsync("Generate another output waveform.");
+
+    private Task ResetWaveformPreviewAsync() => liveSession.ResetAsync();
+}

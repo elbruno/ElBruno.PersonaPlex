@@ -1,0 +1,10 @@
+global using Bunit;
+global using ElBruno.PersonaPlex;
+global using ElBruno.PersonaPlex.BlazorComponents.Components;
+global using ElBruno.PersonaPlex.BlazorComponents.Extensions;
+global using ElBruno.PersonaPlex.BlazorComponents.Options;
+global using ElBruno.PersonaPlex.BlazorComponents.Services;
+global using ElBruno.PersonaPlex.Sessions;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Options;
+global using Xunit;

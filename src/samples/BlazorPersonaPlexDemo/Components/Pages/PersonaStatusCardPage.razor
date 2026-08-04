@@ -1,0 +1,51 @@
+@page "/persona-status-card"
+@inject FakePersonaSessionFactory SessionFactory
+
+<PageTitle>PersonaStatusCard</PageTitle>
+
+<h1 class="mb-3">PersonaStatusCard</h1>
+<p class="lead text-secondary">
+    This page focuses on status transitions, cache discovery, and placeholder compute telemetry.
+</p>
+
+<div class="row g-4">
+    <div class="col-xl-7">
+        <PersonaStatusCard Session="@liveSession"
+                           ShowVramUsage="true"
+                           ShowSessionTimer="true" />
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-primary" @onclick="StartPreviewAsync">Start live preview</button>
+            <button class="btn btn-outline-primary" @onclick="SimulateTurnAsync">Simulate turn</button>
+            <button class="btn btn-outline-danger" @onclick="TriggerFaultAsync">Trigger fault</button>
+            <button class="btn btn-outline-secondary" @onclick="ResetPreviewAsync">Reset</button>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <PersonaStatusCard Session="@seededSession"
+                           ShowVramUsage="true"
+                           ShowSessionTimer="true" />
+    </div>
+</div>
+
+<CodeSamplePanel Title="Code sample · PersonaStatusCard" Code="@CodeSnippets.PersonaStatusCard" />
+
+@code {
+    private FakePersonaSession liveSession = default!;
+    private FakePersonaSession seededSession = default!;
+
+    protected override void OnInitialized()
+    {
+        liveSession = SessionFactory.CreateLiveSession("Status card preview", VoicePreset.NATM2);
+        seededSession = SessionFactory.CreateSeededSession("Seeded status card", VoicePreset.VARM0);
+    }
+
+    private Task SimulateTurnAsync() =>
+        liveSession.SubmitUserTurnAsync("Give me the short operational status.");
+
+    private Task TriggerFaultAsync() =>
+        liveSession.SetFaultAsync("Fake dependency error: models intentionally not loaded during startup.");
+
+    private Task StartPreviewAsync() => liveSession.StartAsync();
+
+    private Task ResetPreviewAsync() => liveSession.ResetAsync();
+}

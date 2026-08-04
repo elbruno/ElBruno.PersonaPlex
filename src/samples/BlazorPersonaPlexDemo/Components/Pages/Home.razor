@@ -1,0 +1,98 @@
+@page "/"
+
+<PageTitle>BlazorPersonaPlexDemo</PageTitle>
+
+<div class="hero-card p-4 p-lg-5 mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <span class="badge text-bg-primary mb-3">Issue #6 sample surface</span>
+            <h1 class="display-6 fw-bold mb-3">Blazor Server showcase for PersonaPlex component contracts</h1>
+            <p class="lead text-secondary mb-0">
+                This sample stays model-free on startup while still demonstrating the proposed
+                <code>SpeechToSpeechPanel</code>, <code>PersonaStatusCard</code>,
+                <code>ConversationTurnVisualizer</code>, and <code>AudioWaveform</code> contracts.
+            </p>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="small text-uppercase fw-semibold text-secondary mb-2">Startup profile</div>
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No ONNX download on app boot</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Server-backed fake sessions</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Bootstrap 5.3 + Bootstrap Icons CDN</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+    <div class="col">
+        <a class="text-decoration-none" href="speech-to-speech-panel">
+            <div class="card demo-nav-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-pill bg-primary-subtle text-primary"><i class="bi bi-mic"></i></div>
+                        <div>
+                            <h2 class="h5 mb-1">SpeechToSpeechPanel</h2>
+                            <div class="text-secondary small">Interactive turn loop + avatar + callback</div>
+                        </div>
+                    </div>
+                    <p class="text-secondary mb-0">Drive a fake turn-based session without pulling models or GPU dependencies.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a class="text-decoration-none" href="persona-status-card">
+            <div class="card demo-nav-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-pill bg-success-subtle text-success"><i class="bi bi-broadcast-pin"></i></div>
+                        <div>
+                            <h2 class="h5 mb-1">PersonaStatusCard</h2>
+                            <div class="text-secondary small">Load state, cache hints, VRAM placeholder</div>
+                        </div>
+                    </div>
+                    <p class="text-secondary mb-0">Show how startup state and session telemetry can surface before the real runtime is wired in.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a class="text-decoration-none" href="conversation-turn-visualizer">
+            <div class="card demo-nav-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-pill bg-warning-subtle text-warning-emphasis"><i class="bi bi-chat-square-text"></i></div>
+                        <div>
+                            <h2 class="h5 mb-1">ConversationTurnVisualizer</h2>
+                            <div class="text-secondary small">Per-turn transcript and duration cards</div>
+                        </div>
+                    </div>
+                    <p class="text-secondary mb-0">Inspect live and canned conversations with a compact timeline layout.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a class="text-decoration-none" href="audio-waveform">
+            <div class="card demo-nav-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-pill bg-info-subtle text-info-emphasis"><i class="bi bi-soundwave"></i></div>
+                        <div>
+                            <h2 class="h5 mb-1">AudioWaveform</h2>
+                            <div class="text-secondary small">Microphone and output visual feedback</div>
+                        </div>
+                    </div>
+                    <p class="text-secondary mb-0">Render dynamic waveform bars from server-generated fake audio activity.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<CodeSamplePanel Title="Program.cs wiring" Code="@CodeSnippets.Registration" />

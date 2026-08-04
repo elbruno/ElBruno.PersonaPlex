@@ -1,0 +1,84 @@
+.turn-visualizer {
+    display: grid;
+    gap: 1rem;
+}
+
+.empty-state {
+    padding: 1rem;
+    border: 1px dashed #c7d2e5;
+    border-radius: 0.75rem;
+    color: #52627a;
+    background: #fff;
+}
+
+.turn-card {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid #dbe4f3;
+    background: #fff;
+}
+
+.turn-card.completed {
+    border-color: #b7ebc6;
+}
+
+.turn-card.failed {
+    border-color: #fecdd3;
+}
+
+.turn-card.processing {
+    border-color: #c7d2fe;
+}
+
+.turn-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.turn-title,
+.lane-title {
+    font-weight: 600;
+}
+
+.turn-status,
+.hint {
+    color: #52627a;
+}
+
+.lane {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.transcript,
+.error-text {
+    margin: 0;
+}
+
+.error-text {
+    color: #b42318;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.metrics div {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.metrics dt {
+    color: #52627a;
+    font-size: 0.85rem;
+}
+
+.metrics dd {
+    margin: 0;
+}

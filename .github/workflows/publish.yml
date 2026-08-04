@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package version (leave empty to use csproj version)"
+        description: "Package version (leave empty to publish 1.0.0)"
         required: false
         type: string
 
@@ -38,23 +38,104 @@ jobs:
           elif [[ -n "${{ inputs.version }}" ]]; then
             VERSION="${{ inputs.version }}"
           else
-            VERSION=$(grep -oP '<Version>\K[^<]+' src/ElBruno.PersonaPlex/ElBruno.PersonaPlex.csproj)
+            VERSION="1.0.0"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "📦 Publishing version: $VERSION"
 
-      - name: Restore
-        run: dotnet restore
+      - name: Discover packable projects
+        id: projects
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      - name: Build
-        run: dotnet build -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+          mapfile -t projects < <(find src -mindepth 2 -maxdepth 2 -name '*.csproj' ! -path '*/samples/*' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No projects found."
+            exit 1
+          fi
+
+          packable_projects=()
+          test_projects=()
+          for project in "${projects[@]}"; do
+            if grep -Eq '<IsTestProject>\s*true\s*</IsTestProject>' "$project"; then
+              test_projects+=("$project")
+            else
+              packable_projects+=("$project")
+            fi
+          done
+
+          if [ "${#packable_projects[@]}" -eq 0 ]; then
+            echo "No packable projects found."
+            exit 1
+          fi
+
+          if [ "${#test_projects[@]}" -eq 0 ]; then
+            echo "No test projects found."
+            exit 1
+          fi
+
+          printf '%s\n' "${packable_projects[@]}" > packable-projects.txt
+          printf '%s\n' "${test_projects[@]}" > test-projects.txt
+          echo "Packable projects:"
+          printf ' - %s\n' "${packable_projects[@]}"
+          echo "Test projects:"
+          printf ' - %s\n' "${test_projects[@]}"
+
+      - name: Restore packable projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet restore "$project"
+          done < packable-projects.txt
+
+      - name: Build packable projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet build "$project" -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+          done < packable-projects.txt
+
+      - name: Restore tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet restore "$project"
+          done < test-projects.txt
+
+      - name: Build tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet build "$project" -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+          done < test-projects.txt
 
       - name: Test
-        run: dotnet test -c Release --no-build --verbosity normal
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet test "$project" -c Release --no-build --verbosity normal
+          done < test-projects.txt
 
       - name: Pack
+        shell: bash
         run: |
-          dotnet pack src/ElBruno.PersonaPlex/ElBruno.PersonaPlex.csproj -c Release --no-build -o artifacts -p:Version=${{ steps.version.outputs.version }}
+          set -euo pipefail
+          mkdir -p artifacts
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+            dotnet pack "$project" -c Release --no-build -o artifacts -p:Version=${{ steps.version.outputs.version }}
+          done < packable-projects.txt
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1

@@ -1,0 +1,116 @@
+@implements IDisposable
+
+<div class="card demo-card border-0 shadow-sm">
+    <div class="status-accent"></div>
+    <div class="card-body">
+        <div class="d-flex align-items-start justify-content-between mb-3">
+            <div>
+                <div class="text-uppercase small fw-semibold text-secondary">@Session.SessionName</div>
+                <h2 class="h5 mb-1">@Session.PersonaName</h2>
+                <div class="small text-secondary">@Session.BackendDescription</div>
+            </div>
+            <span class="@GetBadgeClass(Session.State)">@Session.State</span>
+        </div>
+
+        <p class="text-secondary mb-3">@Session.StatusMessage</p>
+
+        <dl class="row small mb-0">
+            <dt class="col-sm-4 text-secondary">Voice preset</dt>
+            <dd class="col-sm-8">@Session.VoicePreset</dd>
+
+            <dt class="col-sm-4 text-secondary">Model cache</dt>
+            <dd class="col-sm-8">
+                @(Session.ModelsPresent ? "Present" : "Not downloaded yet")
+                <div class="text-secondary text-break">@Session.ModelDirectory</div>
+            </dd>
+
+            <dt class="col-sm-4 text-secondary">Turns</dt>
+            <dd class="col-sm-8">@Session.Turns.Count</dd>
+
+            @if (ShowSessionTimer)
+            {
+                <dt class="col-sm-4 text-secondary">Session time</dt>
+                <dd class="col-sm-8">@Elapsed</dd>
+            }
+        </dl>
+
+        @if (ShowVramUsage)
+        {
+            <div class="mt-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span>Reserved compute budget</span>
+                    <span>@($"{Session.VramUsagePercent ?? 0:F0}%")</span>
+                </div>
+                <div class="progress" role="progressbar" aria-label="VRAM usage placeholder">
+                    <div class="progress-bar" style="@($"width:{Session.VramUsagePercent ?? 0:F0}%")"></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private IPersonaSession? _subscribedSession;
+    private PeriodicTimer? _timer;
+
+    [Parameter, EditorRequired] public IPersonaSession Session { get; set; } = default!;
+    [Parameter] public bool ShowVramUsage { get; set; } = true;
+    [Parameter] public bool ShowSessionTimer { get; set; } = true;
+
+    private string Elapsed => (DateTimeOffset.UtcNow - Session.StartedAt).ToString(@"hh\:mm\:ss");
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(_subscribedSession, Session))
+        {
+            if (_subscribedSession is not null)
+            {
+                _subscribedSession.Changed -= HandleSessionChanged;
+            }
+
+            _subscribedSession = Session;
+            _subscribedSession.Changed += HandleSessionChanged;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        _ = RefreshTimerAsync();
+    }
+
+    private async Task RefreshTimerAsync()
+    {
+        if (_timer is null)
+        {
+            return;
+        }
+
+        while (await _timer.WaitForNextTickAsync())
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void HandleSessionChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (_subscribedSession is not null)
+        {
+            _subscribedSession.Changed -= HandleSessionChanged;
+        }
+
+        _timer?.Dispose();
+    }
+
+    private static string GetBadgeClass(PersonaSessionState state) => state switch
+    {
+        PersonaSessionState.Ready => "badge text-bg-success",
+        PersonaSessionState.Bootstrapping => "badge text-bg-primary",
+        PersonaSessionState.Capturing => "badge text-bg-warning",
+        PersonaSessionState.Responding => "badge text-bg-info",
+        PersonaSessionState.Faulted => "badge text-bg-danger",
+        _ => "badge text-bg-secondary"
+    };
+}
