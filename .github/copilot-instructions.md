@@ -16,7 +16,7 @@ dotnet pack src/ElBruno.PersonaPlex/ElBruno.PersonaPlex.csproj -c Release -o art
 
 ```
 ElBruno.PersonaPlex.slnx                # Solution file
-src/ElBruno.PersonaPlex/                 # Core library (NuGet: ElBruno.PersonaPlex, targets net8.0+net10.0)
+src/ElBruno.PersonaPlex/                 # Core library (NuGet: ElBruno.PersonaPlex, targets net8.0+net10.0+net11.0)
   Pipeline/PersonaPlexPipeline.cs        # Full S2S orchestrator + CreateAsync factory
   Audio/WavWriter.cs                     # WAV file writer (24 kHz, 16-bit PCM)
   ModelManager.cs                        # Auto-download models from HuggingFace
@@ -54,11 +54,11 @@ images/                                  # NuGet icon, README images
 - **Package name**: `ElBruno.PersonaPlex` (PackageId in csproj)
 - **Workflow**: `.github/workflows/publish.yml` — triggered on GitHub release or manual dispatch
 - **Authentication**: OIDC via `NuGet/login@v1`, requires `NUGET_USER` secret in `release` environment
-- **Version**: Determined from release tag (`v1.0.0` → `1.0.0`), manual input, or csproj fallback
+- **Version**: Determined from release tag (`v1.1.0` → `1.1.0`), manual input, or csproj fallback
 
 ## Key Conventions
 
-- Target frameworks: net8.0 and net10.0
+- Target frameworks: net8.0, net10.0, and net11.0
 - Use `async/await` throughout; pipeline follows `CreateAsync` factory pattern
 - All public APIs must have XML documentation comments
 - Suppress CS1591 for internal/private members only
