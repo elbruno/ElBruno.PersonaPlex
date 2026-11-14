@@ -1,11 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks></TargetFrameworks>
-    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>ElBruno.PersonaPlex.BlazorComponents</RootNamespace>
     <PackageId>ElBruno.PersonaPlex.BlazorComponents</PackageId>
-    <Version>0.6.1</Version>
+    <Version>1.1.0</Version>
     <Authors>Bruno Capuano</Authors>
     <Description>Server-backed Blazor UI shell for ElBruno.PersonaPlex. Includes reusable Razor components for half-duplex, turn-based speech-to-speech experiences on top of the existing file-based PersonaPlex pipeline.</Description>
     <PackageTags>blazor;razor;personaplex;speech-to-speech;onnxruntime;half-duplex;turn-based;file-based;server-side;audio;ui</PackageTags>
@@ -25,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>

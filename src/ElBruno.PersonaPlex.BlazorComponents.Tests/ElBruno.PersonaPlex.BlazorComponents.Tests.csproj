@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <RootNamespace>ElBruno.PersonaPlex.BlazorComponents.Tests</RootNamespace>
-    <TargetFrameworks></TargetFrameworks>
-    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
