@@ -2,7 +2,7 @@ using ElBruno.PersonaPlex.BlazorComponents.Tests.TestDoubles;
 
 namespace ElBruno.PersonaPlex.BlazorComponents.Tests;
 
-public sealed class PersonaStatusCardTests : TestContext
+public sealed class PersonaStatusCardTests : BunitContext
 {
     [Fact]
     public async Task PersonaStatusCard_RendersReadyTimerAndFaultedState()
@@ -18,7 +18,7 @@ public sealed class PersonaStatusCardTests : TestContext
         await stateService.EnsureReadyAsync();
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<PersonaStatusCard>(parameters => parameters
+        var cut = Render<PersonaStatusCard>(parameters => parameters
             .Add(p => p.Session, session)
             .Add(p => p.ShowVramUsage, true)
             .Add(p => p.ShowSessionTimer, true));
@@ -58,7 +58,7 @@ public sealed class PersonaStatusCardTests : TestContext
         await stateService.EnsureReadyAsync();
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<PersonaStatusCard>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<PersonaStatusCard>(parameters => parameters.Add(p => p.Session, session));
 
         Assert.Contains("Loading ONNX sessions on the server.", cut.Markup);
         Assert.Contains("Initializing", cut.Markup);

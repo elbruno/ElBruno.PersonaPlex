@@ -44,12 +44,12 @@ This guide covers how to publish new versions of **ElBruno.PersonaPlex** to NuGe
 
 1. **Update the version** in `src/ElBruno.PersonaPlex/ElBruno.PersonaPlex.csproj`:
    ```xml
-   <Version>1.1.0</Version>
+   <Version>1.1.1</Version>
    ```
 2. **Commit and push** the version change to `main`
 3. **Create a GitHub Release:**
    - Go to the repo → **Releases** → **Draft a new release**
-   - Create a new tag: `v1.1.0` (must match the version in the csproj)
+   - Create a new tag: `v1.1.1` (must match the version in the csproj)
    - Fill in the release title and notes
    - Click **Publish release**
 4. The **Publish to NuGet** workflow runs automatically
@@ -64,7 +64,7 @@ This guide covers how to publish new versions of **ElBruno.PersonaPlex** to NuGe
 ## How It Works
 
 ```
-GitHub Release created (e.g. v1.1.0)
+GitHub Release created (e.g. v1.1.1)
   → GitHub Actions triggers publish.yml
     → Builds + tests the runtime + tests project
     → Packs every packable library under src/ with the same version
@@ -78,7 +78,7 @@ GitHub Release created (e.g. v1.1.0)
 
 1. **Release tag** — if triggered by a GitHub Release (strips leading `v`)
 2. **Manual input** — if triggered via workflow dispatch with a version specified
-3. **Workflow default** — falls back to `1.1.0` when no version is supplied
+3. **Workflow default** — falls back to `1.1.1` when no version is supplied
 
 ## Troubleshooting
 

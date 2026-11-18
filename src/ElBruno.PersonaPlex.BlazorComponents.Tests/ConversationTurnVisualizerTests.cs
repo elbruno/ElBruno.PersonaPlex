@@ -1,13 +1,13 @@
 namespace ElBruno.PersonaPlex.BlazorComponents.Tests;
 
-public sealed class ConversationTurnVisualizerTests : TestContext
+public sealed class ConversationTurnVisualizerTests : BunitContext
 {
     [Fact]
     public void ConversationTurnVisualizer_ShowsEmptyStateWithoutTurns()
     {
         Services.AddSingleton(new PersonaPlexStateService(Microsoft.Extensions.Options.Options.Create(new PersonaPlexBlazorComponentsOptions())));
 
-        var cut = RenderComponent<ConversationTurnVisualizer>(parameters => parameters
+        var cut = Render<ConversationTurnVisualizer>(parameters => parameters
             .Add(p => p.Turns, Array.Empty<ConversationTurn>()));
 
         Assert.Contains("No conversation turns yet.", cut.Markup);
@@ -56,7 +56,7 @@ public sealed class ConversationTurnVisualizerTests : TestContext
             }
         };
 
-        var cut = RenderComponent<ConversationTurnVisualizer>(parameters => parameters
+        var cut = Render<ConversationTurnVisualizer>(parameters => parameters
             .Add(p => p.Turns, turns)
             .Add(p => p.MaxTurns, 2)
             .Add(p => p.ShowTranscript, true));
@@ -69,7 +69,7 @@ public sealed class ConversationTurnVisualizerTests : TestContext
             cut.Markup.IndexOf("Processing turn", StringComparison.Ordinal) <
             cut.Markup.IndexOf("Newest response", StringComparison.Ordinal));
 
-        cut.SetParametersAndRender(parameters => parameters
+        cut.Render(parameters => parameters
             .Add(p => p.Turns, turns)
             .Add(p => p.MaxTurns, 3)
             .Add(p => p.ShowTranscript, false));
