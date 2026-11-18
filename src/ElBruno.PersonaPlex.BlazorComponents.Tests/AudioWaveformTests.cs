@@ -3,7 +3,7 @@ using ElBruno.PersonaPlex.BlazorComponents.Tests.TestDoubles;
 
 namespace ElBruno.PersonaPlex.BlazorComponents.Tests;
 
-public sealed class AudioWaveformTests : TestContext
+public sealed class AudioWaveformTests : BunitContext
 {
     [Fact]
     public async Task AudioWaveform_MicrophoneSource_ImportsModuleAttachesAndDisposes()
@@ -11,7 +11,7 @@ public sealed class AudioWaveformTests : TestContext
         var jsRuntime = new RecordingJSRuntime();
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
 
-        var cut = RenderComponent<AudioWaveform>(parameters => parameters
+        var cut = Render<AudioWaveform>(parameters => parameters
             .Add(p => p.Source, AudioSource.Microphone)
             .Add(p => p.Height, 64)
             .Add(p => p.BarColor, "#0d6efd")
@@ -35,7 +35,7 @@ public sealed class AudioWaveformTests : TestContext
         var jsRuntime = new RecordingJSRuntime();
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
 
-        RenderComponent<AudioWaveform>(parameters => parameters
+        Render<AudioWaveform>(parameters => parameters
             .Add(p => p.Source, AudioSource.Playback)
             .Add(p => p.AudioDataUrl, "data:audio/wav;base64,ZmFrZQ==")
             .Add(p => p.BarColor, "#ff00ff")

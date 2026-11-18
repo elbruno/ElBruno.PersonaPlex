@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package version (leave empty to publish 1.1.0)"
+        description: "Package version (leave empty to publish 1.1.1)"
         required: false
         type: string
 
@@ -39,7 +39,7 @@ jobs:
           elif [[ -n "${{ inputs.version }}" ]]; then
             VERSION="${{ inputs.version }}"
           else
-            VERSION="1.1.0"
+            VERSION="1.1.1"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "📦 Publishing version: $VERSION"

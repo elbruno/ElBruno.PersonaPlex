@@ -54,7 +54,7 @@ images/                                  # NuGet icon, README images
 - **Package name**: `ElBruno.PersonaPlex` (PackageId in csproj)
 - **Workflow**: `.github/workflows/publish.yml` — triggered on GitHub release or manual dispatch
 - **Authentication**: OIDC via `NuGet/login@v1`, requires `NUGET_USER` secret in `release` environment
-- **Version**: Determined from release tag (`v1.1.0` → `1.1.0`), manual input, or csproj fallback
+- **Version**: Determined from release tag (`v1.1.1` → `1.1.1`), manual input, or csproj fallback
 
 ## Key Conventions
 

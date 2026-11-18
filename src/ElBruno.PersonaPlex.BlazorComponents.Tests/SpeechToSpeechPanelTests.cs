@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace ElBruno.PersonaPlex.BlazorComponents.Tests;
 
-public sealed class SpeechToSpeechPanelTests : TestContext
+public sealed class SpeechToSpeechPanelTests : BunitContext
 {
     [Fact]
     public async Task SpeechToSpeechPanel_FirstRender_EnsuresReadyAndLoadsInteropModule()
@@ -14,7 +14,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
 
         Assert.Equal(PersonaSessionState.Ready, session.State);
         Assert.Null(stateService.Session);
@@ -52,7 +52,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters
             .Add(p => p.Session, session)
             .Add(p => p.OnTurnCompleted, turn => completedTurns.Add(turn)));
 
@@ -84,7 +84,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
         SetPrivateField(cut.Instance, "_latestResponseAudioUrl", "data:audio/wav;base64,dGVzdA==");
         session.TurnHistory.Add(new ConversationTurn
         {
@@ -143,7 +143,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
 
         SetPrivateField(cut.Instance, "_turnNote", "Preserve session files.");
         await InvokePrivateAsync(cut.Instance, "ToggleRecordingAsync");
@@ -177,7 +177,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, firstSession));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, firstSession));
 
         SetPrivateField(cut.Instance, "_turnNote", "Keep old session files.");
         await InvokePrivateAsync(cut.Instance, "ToggleRecordingAsync");
@@ -187,7 +187,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         var originalInputPath = AssertFilePathUnderRoot(originalTurn.InputAudio.LocalFilePath, firstSession.StorageRoot);
         var originalOutputPath = AssertFilePathUnderRoot(originalTurn.OutputAudio?.LocalFilePath, firstSession.StorageRoot);
 
-        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Session, secondSession));
+        cut.Render(parameters => parameters.Add(p => p.Session, secondSession));
 
         Assert.True(File.Exists(originalInputPath));
         Assert.True(File.Exists(originalOutputPath));
@@ -209,7 +209,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
 
         await InvokePrivateAsync(cut.Instance, "ToggleRecordingAsync");
         await InvokePrivateAsync(cut.Instance, "ToggleRecordingAsync");
@@ -238,7 +238,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
 
         await InvokePrivateAsync(cut.Instance, "ToggleRecordingAsync");
         await InvokePrivateAsync(cut.Instance, "ToggleRecordingAsync");
@@ -270,7 +270,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton(stateService);
 
         var completedTurns = new List<ConversationTurn>();
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters
             .Add(p => p.Session, firstSession)
             .Add(p => p.OnTurnCompleted, turn => completedTurns.Add(turn)));
 
@@ -279,7 +279,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         var stopTask = InvokePrivateAsync(cut.Instance, "StopRecordingAsync");
         await Task.Yield();
 
-        cut.SetParametersAndRender(parameters => parameters.Add(p => p.Session, secondSession));
+        cut.Render(parameters => parameters.Add(p => p.Session, secondSession));
         pendingStop.SetResult("data:audio/wav;base64,dGVzdA==");
         await stopTask;
 
@@ -303,7 +303,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters
             .Add(p => p.Session, session)
             .Add(p => p.PushToTalk, true));
 
@@ -334,7 +334,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton(stateService);
 
         var completedTurns = new List<ConversationTurn>();
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters
             .Add(p => p.Session, firstSession)
             .Add(p => p.OnTurnCompleted, turn => completedTurns.Add(turn)));
 
@@ -373,7 +373,7 @@ public sealed class SpeechToSpeechPanelTests : TestContext
         Services.AddSingleton<Microsoft.JSInterop.IJSRuntime>(jsRuntime);
         Services.AddSingleton(stateService);
 
-        var cut = RenderComponent<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
+        var cut = Render<SpeechToSpeechPanel>(parameters => parameters.Add(p => p.Session, session));
         Assert.Null(stateService.Session);
         Assert.True(cut.Find("button.talk-button").HasAttribute("disabled"));
 

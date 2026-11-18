@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Updated the Blazor test dependency to bUnit 2.15.2, resolving the vulnerable transitive AngleSharp 1.2.0 dependency.
+
+## [1.1.0] - 2026-11-14
+
 ### Added
 
 - .NET 11.0 targeting for both NuGet packages, while retaining .NET 8.0 and .NET 10.0 support.
